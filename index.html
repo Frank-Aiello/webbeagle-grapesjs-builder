@@ -416,11 +416,11 @@ section.wb-section{padding:80px 40px;position:relative;z-index:20}
 .step p{color:#6b7280;font-size:.875rem;line-height:1.6}
 
 /* CTA banner */
-.cta-section{background:linear-gradient(135deg,#0e2580 0%,#1a56ff 60%,#4d8eff 100%);text-align:center;padding:80px 40px}
+.cta-section{background:linear-gradient(135deg,rgba(163,131,230,.12) 0%,rgba(163,131,230,.05) 50%,rgba(255,200,80,.04) 100%),radial-gradient(ellipse at 30% 20%,rgba(163,131,230,.08) 0%,transparent 60%),#0a0a0f;text-align:center;padding:80px 40px;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)}
 .cta-section h2{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;margin-bottom:14px;color:#fff;font-family:var(--font-heading)}
 .cta-section p{font-size:1.05rem;opacity:.85;max-width:480px;margin:0 auto 36px;color:#fff}
 .btn-white{
-  background:#fff;color:#1a56ff;padding:16px 40px;
+  background:linear-gradient(135deg,#A383E6,#8F6CE0);color:#fff;padding:16px 40px;
   border-radius:12px;font-size:1.05rem;font-weight:800;
   text-decoration:none;display:inline-block;
   font-family:var(--font-heading);
@@ -1523,6 +1523,15 @@ document.addEventListener('keydown', function(e) {
   setTimeout(function() {
     if (!currentProjectId) {
       editor.addComponents(FULL_PAGE);
+      // Make reveal elements visible (no IntersectionObserver in canvas)
+      setTimeout(function() {
+        var canvasDoc = editor.Canvas.getDocument();
+        if (canvasDoc) {
+          canvasDoc.querySelectorAll(".reveal").forEach(function(el) {
+            el.classList.add("visible");
+          });
+        }
+      }, 200);
       setStatus('🐾 Full homepage loaded! Drag blocks to customize');
     }
   }, 800);
