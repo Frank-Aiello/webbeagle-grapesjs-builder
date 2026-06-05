@@ -1500,12 +1500,14 @@ document.addEventListener('keydown', function(e) {
 });
 
 /* ── Auto-load full homepage on first visit ─────────────────── */
-if (!currentProjectId) {
+(function() {
   setTimeout(function() {
-    editor.addComponents(FULL_PAGE);
-    setStatus('🐾 Full homepage loaded! Drag blocks to customize');
-  }, 500);
-}
+    if (!currentProjectId) {
+      editor.addComponents(FULL_PAGE);
+      setStatus('🐾 Full homepage loaded! Drag blocks to customize');
+    }
+  }, 800);
+})();
 </script>
 
 
