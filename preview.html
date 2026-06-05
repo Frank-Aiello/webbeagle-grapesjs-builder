@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebBeagle — Homepage Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════════
+       WEB BEAGLE — GrapesJS Component Preview
+       Gold Gloss · Glass Panels · Animated Mesh · Scroll Reveal · Sticky Hero
+    ═══════════════════════════════════════════════════ */
+    :root {
+      --font-heading: 'Plus Jakarta Sans', sans-serif;
+      --font-body:    'Inter', system-ui, sans-serif;
+      --bg:           #0a0a0a;
+      --accent:       #A383E6;
+      --accent-h:     #8F6CE0;
+      --primary:      #3A2A56;
+      --gold-1: #FFFDE7; --gold-2: #FFD500;
+      --gold-3: #f5a14c; --gold-4: #FFC107;
+      --gold-stroke: #FFB040;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:var(--font-body);
+      background:var(--bg);
+      color:#e5e5e5;
+      -webkit-font-smoothing:antialiased;
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+    h1,h2,h3,h4,h5,h6{font-family:var(--font-heading)}
+
+    .gold-gloss{
+      background:linear-gradient(to bottom,
+        var(--gold-1) 0%,var(--gold-2) 54%,
+        var(--gold-3) 56%,var(--gold-4) 100%);
+      -webkit-background-clip:text;background-clip:text;
+      -webkit-text-fill-color:transparent;
+      -webkit-text-stroke:1.2px var(--gold-stroke);
+      filter:drop-shadow(0 3px 6px rgba(0,0,0,.7));
+    }
+    .glass{
+      position:relative;overflow:hidden;
+      background:
+        linear-gradient(135deg,rgba(255,255,255,.09) 0%,rgba(255,255,255,.02) 38%,rgba(163,131,230,.07) 65%,rgba(255,200,80,.04) 100%),
+        radial-gradient(ellipse at 25% 0%,rgba(163,131,230,.13) 0%,transparent 52%),
+        radial-gradient(ellipse at 80% 100%,rgba(255,200,80,.07) 0%,transparent 52%),
+        rgba(0,0,0,.52);
+      backdrop-filter:blur(1px) saturate(160%) brightness(.5);
+      -webkit-backdrop-filter:blur(1px) saturate(160%) brightness(.5);
+      border:1px solid rgba(255,255,255,.13);
+      box-shadow:0 40px 100px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(255,255,255,.06),inset 1px 0 rgba(255,255,255,.08),inset -1px 0 rgba(255,255,255,.08);
+      transition:box-shadow .5s var(--ease);
+    }
+    .glass::before{
+      content:"";position:absolute;top:0;left:0;right:0;height:55%;
+      background:linear-gradient(180deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,.06) 35%,rgba(255,255,255,0) 100%);
+      pointer-events:none;z-index:0;
+    }
+    .glass::after{
+      content:"";position:absolute;bottom:0;left:10%;right:10%;height:1px;
+      background:linear-gradient(90deg,transparent 0%,rgba(163,131,230,.65) 30%,rgba(255,200,80,.45) 70%,transparent 100%);
+      pointer-events:none;filter:blur(.5px);z-index:0;
+    }
+    .glass:hover{
+      box-shadow:0 48px 120px rgba(0,0,0,.65),0 0 120px rgba(163,131,230,.18),
+        inset 0 1px 0 rgba(255,255,255,.38),inset 0 -1px 0 rgba(255,255,255,.08),
+        inset 1px 0 rgba(255,255,255,.10),inset -1px 0 rgba(255,255,255,.10);
+    }
+    .glass>*:not(.glass-shimmer){position:relative;z-index:2;}
+    .glass-shimmer{
+      position:absolute;inset:0;pointer-events:none;opacity:0;
+      transition:opacity .4s;
+      background:radial-gradient(circle 380px at var(--mx,50%) var(--my,30%),rgba(255,255,255,.07) 0%,transparent 70%);
+      z-index:1;
+    }
+    .glass:hover .glass-shimmer{opacity:1;}
+
+    @keyframes blob-1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-60px) scale(1.12)}66%{transform:translate(-30px,30px) scale(.92)}}
+    @keyframes blob-2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-50px,40px) scale(1.08)}66%{transform:translate(25px,-20px) scale(.95)}}
+    @keyframes pan-grid{0%{background-position:0 0}100%{background-position:0 48px}}
+    @keyframes spin-slow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+    @keyframes fadeUpIn{0%{opacity:0;transform:translateY(24px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
+    .animate-entry{opacity:0;animation:fadeUpIn 0.9s var(--ease) forwards;}
+    .d1{animation-delay:.15s}.d2{animation-delay:.30s}.d3{animation-delay:.45s}.d4{animation-delay:.60s}.d5{animation-delay:.75s}.d6{animation-delay:.90s}
+    .reveal{opacity:0;transform:translateY(40px);transition:opacity 1s var(--ease),transform 1s var(--ease);}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    .r1{transition-delay:.1s}.r2{transition-delay:.2s}.r3{transition-delay:.35s}.r4{transition-delay:.5s}
+
+    nav.wb-nav{
+      position:fixed;top:0;width:100%;z-index:100;
+      backdrop-filter:blur(20px) saturate(180%);
+      -webkit-backdrop-filter:blur(20px) saturate(180%);
+      background:rgba(10,10,10,.8);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      padding:18px 48px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .nav-brand{
+      font-family:var(--font-heading);font-weight:800;font-size:18px;
+      letter-spacing:-.03em;color:#fff;text-decoration:none;
+      display:flex;align-items:center;gap:10px;
+    }
+    .nav-brand-icon{
+      width:32px;height:32px;border-radius:8px;
+      background:linear-gradient(135deg,var(--accent),var(--primary));
+      display:flex;align-items:center;justify-content:center;
+      font-size:18px;
+    }
+    .nav-links{display:flex;gap:28px;align-items:center}
+    .nav-links a{
+      font-size:13px;color:#9ca3af;text-decoration:none;
+      font-weight:500;transition:color .2s;
+    }
+    .nav-links a:hover{color:#fff}
+    .nav-cta{
+      position:relative;display:inline-flex;overflow:hidden;
+      padding:1px;border-radius:99px;text-decoration:none;
+    }
+    .nav-cta::before{
+      content:"";position:absolute;inset:-200%;
+      background:conic-gradient(from 90deg,var(--accent) 0%,var(--primary) 50%,var(--accent) 100%);
+      animation:spin-slow 3s linear infinite;
+    }
+    .nav-cta span{
+      position:relative;z-index:1;padding:9px 22px;
+      background:var(--bg);border-radius:99px;
+      color:#fff;font-size:12px;font-weight:700;
+      font-family:var(--font-heading);letter-spacing:.05em;
+    }
+
+    .hero-wrap{position:relative;height:130vh;z-index:10}
+    .hero{
+      position:sticky;top:0;height:100vh;
+      display:flex;align-items:center;justify-content:center;
+      padding:40px;
+      will-change:opacity,transform;
+    }
+    .hero .glass{width:100%;max-width:1000px;border-radius:40px;padding:60px 48px;text-align:center}
+    .hero-badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:5px 16px 5px 10px;border-radius:99px;
+      border:1px solid rgba(163,131,230,.25);
+      background:rgba(163,131,230,.08);
+      margin-bottom:28px;
+    }
+    .hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+    .hero-badge span{font-size:11px;font-weight:700;color:var(--accent);font-family:var(--font-heading);letter-spacing:.12em;text-transform:uppercase}
+    .hero h1{font-family:var(--font-heading);font-size:clamp(2.4rem,5vw,4rem);font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-bottom:20px}
+    .hero h1 .line{display:block}
+    .hero h1 .line-white{color:#fff}
+    .hero-sub{font-size:1.05rem;color:#9ca3af;max-width:580px;margin:0 auto 10px;line-height:1.65;}
+    .hero-highlight{font-size:1rem;font-weight:600;color:#fff;max-width:580px;margin:0 auto 36px;line-height:1.65;}
+    .hero-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:48px}
+    .btn-primary{
+      position:relative;display:inline-flex;overflow:hidden;
+      height:48px;border-radius:99px;padding:1px;
+      border:none;background:none;cursor:pointer;
+      min-width:220px;text-decoration:none;
+      box-shadow:0 8px 30px rgba(163,131,230,.35);
+      transition:box-shadow .3s,transform .3s;
+    }
+    .btn-primary:hover{box-shadow:0 12px 40px rgba(163,131,230,.55);transform:translateY(-2px)}
+    .btn-primary::before{
+      content:"";position:absolute;inset:-200%;
+      background:conic-gradient(from 90deg,var(--accent) 0%,var(--primary) 50%,var(--accent) 100%);
+      animation:spin-slow 2.5s linear infinite;
+    }
+    .btn-primary span{
+      position:relative;display:inline-flex;align-items:center;justify-content:center;
+      width:100%;height:100%;border-radius:99px;
+      background:var(--bg);color:#fff;
+      font-size:14px;font-weight:700;
+      font-family:var(--font-heading);z-index:1;
+      padding:0 32px;
+    }
+    .btn-secondary{
+      padding:14px 28px;border-radius:99px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.15);
+      color:#e5e5e5;font-size:14px;font-weight:600;
+      font-family:var(--font-heading);cursor:pointer;
+      text-decoration:none;transition:all .3s;
+    }
+    .btn-secondary:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);transform:translateY(-2px)}
+    .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid rgba(255,255,255,.07);padding-top:32px;}
+    .stat{text-align:center;padding:0 20px}
+    .stat+.stat{border-left:1px solid rgba(255,255,255,.07)}
+    .stat-num{font-family:var(--font-heading);font-size:2rem;font-weight:800}
+    .stat-label{font-size:11px;color:#6b7280;margin-top:4px}
+
+    section.wb-section{padding:80px 40px;position:relative;z-index:20}
+    .section-header{text-align:center;margin-bottom:56px}
+    .section-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 14px 4px 8px;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);margin-bottom:16px;}
+    .section-badge .sdot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+    .section-badge span{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:#9ca3af;font-family:var(--font-heading)}
+    .section-header h2{font-family:var(--font-heading);font-size:clamp(2rem,3.5vw,3rem);font-weight:800;letter-spacing:-.03em;color:#fff;line-height:1.1;margin-bottom:14px}
+    .section-header p{font-size:1rem;color:#6b7280;max-width:480px;margin:0 auto;line-height:1.6}
+    .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:1100px;margin:0 auto;}
+    .svc-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:32px 28px;transition:all .4s var(--ease);}
+    .svc-card:hover{background:rgba(163,131,230,.06);border-color:rgba(163,131,230,.25);transform:translateY(-4px);box-shadow:0 20px 60px rgba(163,131,230,.12);}
+    .svc-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px;}
+    .svc-card h3{font-family:var(--font-heading);font-size:17px;font-weight:700;color:#fff;margin-bottom:10px}
+    .svc-card p{font-size:13px;color:#6b7280;line-height:1.65;margin-bottom:18px}
+    .svc-price{display:inline-block;padding:5px 14px;border-radius:8px;background:rgba(163,131,230,.1);border:1px solid rgba(163,131,230,.2);color:var(--accent);font-size:12px;font-weight:700;font-family:var(--font-heading);}
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;max-width:900px;margin:0 auto}
+    .step{text-align:center}
+    .step-num{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--primary));display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;margin:0 auto 18px;box-shadow:0 4px 16px rgba(163,131,230,.4);}
+    .step h3{font-size:1rem;font-weight:700;margin-bottom:8px}
+    .step p{color:#6b7280;font-size:.875rem;line-height:1.6}
+    .cta-section{background:linear-gradient(135deg,#0e2580 0%,#1a56ff 60%,#4d8eff 100%);text-align:center;padding:80px 40px}
+    .cta-section h2{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;margin-bottom:14px;color:#fff;font-family:var(--font-heading)}
+    .cta-section p{font-size:1.05rem;opacity:.85;max-width:480px;margin:0 auto 36px;color:#fff}
+    .btn-white{background:#fff;color:#1a56ff;padding:16px 40px;border-radius:12px;font-size:1.05rem;font-weight:800;text-decoration:none;display:inline-block;font-family:var(--font-heading);transition:transform .15s,box-shadow .2s;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+    .btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+    footer.wb-footer{border-top:1px solid rgba(255,255,255,.06);padding:48px 40px 32px;background:rgba(0,0,0,.3);position:relative;z-index:20;}
+    .footer-inner{max-width:1100px;margin:0 auto}
+    .footer-top{display:flex;align-items:flex-start;justify-content:space-between;gap:40px;flex-wrap:wrap;margin-bottom:32px}
+    .footer-brand{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+    .footer-brand-icon{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--primary));display:flex;align-items:center;justify-content:center;font-size:14px}
+    .footer-tag{font-size:13px;color:#6b7280;line-height:1.6;max-width:260px}
+    .footer-links{display:flex;gap:48px;flex-wrap:wrap}
+    .footer-link-group h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:#6b7280;margin-bottom:14px;font-family:var(--font-heading)}
+    .footer-link-group a{display:block;font-size:13px;color:#9ca3af;text-decoration:none;margin-bottom:9px;transition:color .2s}
+    .footer-link-group a:hover{color:#fff}
+    .footer-bottom{border-top:1px solid rgba(255,255,255,.06);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+    .footer-copy{font-size:12px;color:#4b5563}
+    .footer-built{font-size:12px;color:#374151}
+    .mesh-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+    .blob{position:absolute;border-radius:50%}
+    .grid-tex{position:absolute;inset:0;opacity:.4;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:48px 48px;animation:pan-grid 4s linear infinite;}
+
+    @media(max-width:768px){
+      nav.wb-nav{padding:18px 24px}
+      .nav-links{display:none}
+      .hero{padding:20px}
+      .hero .glass{padding:40px 24px}
+      .hero-stats{grid-template-columns:1fr;gap:20px}
+      .stat+.stat{border-left:none;border-top:1px solid rgba(255,255,255,.07);padding-top:16px}
+      section.wb-section{padding:60px 24px}
+    }
+  </style>
+</head>
+<body>
+
+<div class="mesh-bg">
+  <div class="blob" style="width:700px;height:700px;top:-200px;left:-200px;background:radial-gradient(circle,rgba(163,131,230,.12) 0%,transparent 70%);animation:blob-1 18s ease-in-out infinite"></div>
+  <div class="blob" style="width:500px;height:500px;bottom:-100px;right:-100px;background:radial-gradient(circle,rgba(255,200,80,.06) 0%,transparent 70%);animation:blob-2 22s ease-in-out infinite"></div>
+  <div class="grid-tex"></div>
+</div>
+
+<nav class="wb-nav">
+  <a href="#" class="nav-brand">
+    <span class="nav-brand-icon">🐾</span>
+    <span>WebBeagle</span>
+  </a>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#cta-section">Get Started</a>
+  </div>
+  <a href="#" class="nav-cta">
+    <span>Get Started</span>
+  </a>
+</nav>
+
+<div class="hero-wrap">
+  <section class="hero">
+    <div class="glass">
+      <div class="glass-shimmer"></div>
+      <div class="hero-badge animate-entry d1">
+        <span class="dot"></span>
+        <span>Managed WordPress for Small Business</span>
+      </div>
+      <h1>
+        <span class="gold-gloss animate-entry d2 line">Beautiful Websites.</span>
+        <span class="animate-entry d3 line line-white">Delivered in Days.</span>
+      </h1>
+      <p class="hero-sub animate-entry d4">WebBeagle builds and manages stunning WordPress websites for small businesses. Flat monthly rate. No contracts. No surprise fees. Your new site, live in 48 hours.</p>
+      <p class="hero-highlight animate-entry d4">$99/month flat rate. No contracts. No surprise fees. Your site, live in 48 hours.</p>
+      <div class="hero-ctas animate-entry d5">
+        <a href="#" class="btn-primary"><span>Get Your Site Built &rarr;</span></a>
+        <a href="#services" class="btn-secondary">See What's Included</a>
+      </div>
+      <div class="hero-stats animate-entry d5">
+        <div class="stat"><div class="stat-num gold-gloss">48h</div><div class="stat-label">Average Delivery</div></div>
+        <div class="stat"><div class="stat-num gold-gloss">$99/mo</div><div class="stat-label">Flat Monthly Rate</div></div>
+        <div class="stat"><div class="stat-num gold-gloss">100%</div><div class="stat-label">Managed &amp; Secured</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="wb-section" id="services">
+  <div class="section-header reveal r1">
+    <div class="section-badge"><span class="sdot"></span><span>What We Offer</span></div>
+    <h2>Everything Your Site Needs.<br><span class="gold-gloss">Nothing It Doesn't.</span></h2>
+    <p>Three focused offerings built around what small businesses actually need.</p>
+  </div>
+  <div class="services-grid">
+    <div class="svc-card reveal r2"><div class="svc-icon" style="background:rgba(163,131,230,.15)">🎨</div><h3>Website Design</h3><p>Custom WordPress design tailored to your brand. Built with professional templates and refined to pixel-perfection.</p><span class="svc-price">Starting at $499 one-time</span></div>
+    <div class="svc-card reveal r3"><div class="svc-icon" style="background:rgba(16,185,129,.15)">🛡️</div><h3>Managed Hosting</h3><p>We host, update, secure, and maintain your site every month. You never touch a dashboard unless you want to.</p><span class="svc-price">$99/month</span></div>
+    <div class="svc-card reveal r4"><div class="svc-icon" style="background:rgba(245,158,11,.15)">⚡</div><h3>On-Demand Updates</h3><p>Point at anything on your site and tell us what to change. We handle it fast — usually within 24 hours.</p><span class="svc-price">Included</span></div>
+  </div>
+</section>
+
+<section class="wb-section" id="how-it-works" style="background:rgba(255,255,255,.015);border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04);">
+  <div class="section-header reveal r1">
+    <div class="section-badge"><span class="sdot"></span><span>The Process</span></div>
+    <h2>Up and Running in <span class="gold-gloss">3 Steps</span></h2>
+    <p>We handle the hard part. You handle your business.</p>
+  </div>
+  <div class="steps">
+    <div class="step reveal r1"><div class="step-num">1</div><h3>Tell Us About Your Business</h3><p>Fill out a quick form — your industry, services, and style preferences. Takes 5 minutes.</p></div>
+    <div class="step reveal r2"><div class="step-num">2</div><h3>We Build Your Site</h3><p>Our AI-powered team builds a professional WordPress site tailored to you. Live in 48 hours.</p></div>
+    <div class="step reveal r3"><div class="step-num">3</div><h3>We Manage It Forever</h3><p>Updates, security, changes, hosting — all handled. You focus on running your business.</p></div>
+  </div>
+</section>
+
+<section class="wb-section" id="testimonials">
+  <div class="section-header reveal r1">
+    <div class="section-badge"><span class="sdot"></span><span>Social Proof</span></div>
+    <h2 class="gold-gloss">What Clients Say</h2>
+    <p>Small businesses love working with us.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;max-width:1000px;margin:0 auto;">
+    <div class="glass reveal r1" style="border-radius:24px;padding:28px;"><div style="font-size:32px;color:var(--accent);margin-bottom:12px;">"</div><p style="font-size:14px;color:#d4d4d8;line-height:1.7;margin-bottom:20px;">WebBeagle delivered our site in 48 hours and it looked better than anything our previous agency produced in 3 months. Absolutely elite work.</p><div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--primary));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;font-family:var(--font-heading);">S</div><div><div style="font-size:13px;font-weight:700;color:#fff;font-family:var(--font-heading);">Sarah Mitchell</div><div style="font-size:11px;color:#6b7280;">CEO, Bloom Wellness Co.</div></div></div></div>
+    <div class="glass reveal r2" style="border-radius:24px;padding:28px;"><div style="font-size:32px;color:#FFD500;margin-bottom:12px;">"</div><p style="font-size:14px;color:#d4d4d8;line-height:1.7;margin-bottom:20px;">I was skeptical about the 48-hour promise. Now I send every client their way. The process is smooth, the quality is consistent, and the ROI is real.</p><div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FFD500,#f5a14c);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#0a0a0a;font-family:var(--font-heading);">R</div><div><div style="font-size:13px;font-weight:700;color:#fff;font-family:var(--font-heading);">Ryan Okafor</div><div style="font-size:11px;color:#6b7280;">Marketing Director, Finova Capital</div></div></div></div>
+    <div class="glass reveal r3" style="border-radius:24px;padding:28px;"><div style="font-size:32px;color:#10b981;margin-bottom:12px;">"</div><p style="font-size:14px;color:#d4d4d8;line-height:1.7;margin-bottom:20px;">Booked 14 discovery calls in the first week after launch. The site just converts. If you're on the fence, just do it.</p><div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#0ea5e9);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;font-family:var(--font-heading);">J</div><div><div style="font-size:13px;font-weight:700;color:#fff;font-family:var(--font-heading);">Jamie Torres</div><div style="font-size:11px;color:#6b7280;">Founder, Torres Consulting</div></div></div></div>
+  </div>
+</section>
+
+<section class="cta-section" id="cta-section">
+  <h2>Ready to Get Your Site Built?</h2>
+  <p>Join local businesses who trust WebBeagle to keep their online presence sharp. Starting at just $99/month.</p>
+  <a href="#" class="btn-white">Get Started Today</a>
+</section>
+
+<footer class="wb-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand"><span class="footer-brand-icon">🐾</span><span style="font-family:var(--font-heading);font-weight:800;font-size:16px;color:#fff;">WebBeagle</span></div>
+        <p class="footer-tag">Managed WordPress websites for small businesses. Beautiful design. Flat monthly rate. No contracts.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-link-group"><h4>Services</h4><a href="#">Web Design</a><a href="#">Managed Hosting</a><a href="#">On-Demand Updates</a></div>
+        <div class="footer-link-group"><h4>Company</h4><a href="#">About</a><a href="#">Portfolio</a><a href="#">Contact</a></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">&copy; 2026 WebBeagle — Digital Blandishment LLC</span>
+      <span style="font-size:12px;color:#4b5563;">hello@webbeagle.com</span>
+      <span class="footer-built">Built with SiteForge &amp; GrapesJS ⚡</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+  document.querySelectorAll('.glass').forEach(function(card) {
+    card.addEventListener('mousemove', function(e) {
+      var rect = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width) * 100 + '%');
+      card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height) * 100 + '%');
+    });
+  });
+
+  var hero = document.querySelector('.hero');
+  var heroWrap = document.querySelector('.hero-wrap');
+  if (heroWrap && hero) {
+    window.addEventListener('scroll', function() {
+      var rect = heroWrap.getBoundingClientRect();
+      var progress = 1 - Math.max(0, Math.min(1, -rect.top / (rect.height - window.innerHeight)));
+      hero.style.opacity = 0.4 + (progress * 0.6);
+    }, { passive: true });
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
