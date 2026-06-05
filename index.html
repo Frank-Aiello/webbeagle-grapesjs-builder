@@ -1500,7 +1500,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 /* ── Auto-load full homepage on first visit ─────────────────── */
-if (!localStorage.getItem('webbeagle-project-v2')) {
+if (!currentProjectId) {
   setTimeout(function() {
     editor.addComponents(FULL_PAGE);
     setStatus('🐾 Full homepage loaded! Drag blocks to customize');
