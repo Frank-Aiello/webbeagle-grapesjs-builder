@@ -827,7 +827,7 @@ var editor = grapesjs.init({
       useCustomTheme: false
     }
   },
-  canvas: { styles: [THEME_CSS], scripts: [] },
+  canvas: { styles: [], scripts: [] },
   blockManager: { blocks: [] }
 });
 
@@ -892,7 +892,26 @@ editor.on('load', function() {
     content: BLOCKS['footer'].html,
     media: '<svg viewBox="0 0 24 24" width="40" height="40"><rect width="24" height="24" rx="6" fill="#111"/><line x1="0" y1="3" x2="24" y2="3" stroke="rgba(255,255,255,0.06)"/><rect x="2" y="7" width="8" height="11" rx="2" fill="rgba(255,255,255,0.03)"/><rect x="12" y="7" width="5" height="11" rx="2" fill="rgba(255,255,255,0.03)"/><rect x="19" y="7" width="3" height="11" rx="2" fill="rgba(255,255,255,0.03)"/></svg>'
   });
-});
+  });
+
+
+/* ── Inject theme CSS into GrapesJS canvas iframe ─────────────── */
+(function injectTheme() {
+  var canvasDoc = editor.Canvas.getDocument();
+  if (canvasDoc && canvasDoc.head) {
+    // Set body styles inline so GrapesJS defaults don't override them
+    var body = canvasDoc.body;
+    body.style.backgroundColor = 'var(--bg, #0a0a0a)';
+    body.style.color = '#e5e5e5';
+    body.style.fontFamily = 'var(--font-body, Inter, system-ui, sans-serif)';
+    // Append theme stylesheet (classes, animations, variables)
+    var styleEl = canvasDoc.createElement('style');
+    styleEl.textContent = THEME_CSS;
+    canvasDoc.head.appendChild(styleEl);
+  } else {
+    setTimeout(injectTheme, 100);
+  }
+})();
 
 
 /* ══════════════════════════════════════════════════════════════
