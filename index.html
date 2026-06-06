@@ -108,6 +108,141 @@
     .live-toggle { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #999; }
     .live-toggle input[type=checkbox] { accent-color: #FFD700; }
 
+    /* ═══ ONBOARDING WIZARD ═══ */
+    .wizard-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      z-index: 10001; justify-content: center; align-items: center;
+    }
+    .wizard-overlay.open { display: flex; }
+    .wizard-panel {
+      background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+      border: 1px solid #2a2a2a; border-radius: 16px;
+      width: 640px; max-width: 94vw; max-height: 88vh;
+      overflow: hidden; display: flex; flex-direction: column;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+    }
+    .wizard-header {
+      padding: 20px 28px; border-bottom: 1px solid #222;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .wizard-header .wiz-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: linear-gradient(135deg, #FFD700, #FFC000);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: #111;
+    }
+    .wizard-header h2 { color: #fff; font-size: 18px; margin: 0; font-weight: 600; }
+    .wizard-header .wiz-sub { color: #666; font-size: 12px; margin: 2px 0 0; }
+    .wizard-steps {
+      display: flex; padding: 0 28px; gap: 0;
+      border-bottom: 1px solid #222; background: #0a0a0a;
+    }
+    .wizard-steps .wstep {
+      flex: 1; text-align: center; padding: 14px 8px 12px;
+      font-size: 11px; color: #555; font-weight: 500;
+      border-bottom: 2px solid transparent; cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+    }
+    .wizard-steps .wstep.active { color: #FFD700; border-bottom-color: #FFD700; }
+    .wizard-steps .wstep.done { color: #4ade80; }
+    .wizard-steps .wstep .step-num {
+      display: inline-block; width: 20px; height: 20px; border-radius: 50%;
+      background: #222; color: #666; font-size: 11px; line-height: 20px;
+      margin-right: 4px; font-weight: 700;
+    }
+    .wizard-steps .wstep.active .step-num { background: #FFD700; color: #111; }
+    .wizard-steps .wstep.done .step-num { background: #4ade80; color: #111; }
+    .wizard-body {
+      flex: 1; overflow-y: auto; padding: 24px 28px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .wizard-body h4 { color: #ddd; font-size: 13px; margin: 0 0 6px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 1px; }
+    .wiz-field {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .wiz-field label { color: #999; font-size: 12px; font-weight: 500; }
+    .wiz-field input, .wiz-field textarea, .wiz-field select {
+      padding: 10px 14px; background: #0a0a0a; color: #ddd;
+      border: 1px solid #2a2a2a; border-radius: 8px;
+      font-size: 14px; font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .wiz-field input:focus, .wiz-field textarea:focus, .wiz-field select:focus {
+      outline: none; border-color: #FFD700;
+    }
+    .wiz-field textarea { resize: vertical; min-height: 80px; font-family: 'SF Mono', monospace; font-size: 12px; }
+    .wiz-row { display: flex; gap: 12px; }
+    .wiz-row .wiz-field { flex: 1; }
+    .wiz-color-picker {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    }
+    .wiz-color-dot {
+      width: 32px; height: 32px; border-radius: 50%; border: 2px solid #333;
+      cursor: pointer; transition: all 0.2s; position: relative;
+    }
+    .wiz-color-dot:hover { border-color: #fff; transform: scale(1.1); }
+    .wiz-color-dot.selected { border-color: #FFD700; box-shadow: 0 0 12px rgba(255,215,0,0.4); }
+    .wiz-color-add {
+      width: 32px; height: 32px; border-radius: 50%; border: 2px dashed #444;
+      display: flex; align-items: center; justify-content: center;
+      color: #666; cursor: pointer; font-size: 18px; transition: all 0.2s;
+    }
+    .wiz-color-add:hover { border-color: #FFD700; color: #FFD700; }
+    .wiz-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px; background: #1a1a1a;
+      border: 1px solid #333; font-size: 12px; color: #ccc;
+    }
+    .wiz-chip .remove { cursor: pointer; color: #666; font-weight: bold; }
+    .wiz-chip .remove:hover { color: #f44; }
+    .wiz-footer {
+      padding: 16px 28px; border-top: 1px solid #222;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .wiz-btn {
+      padding: 10px 22px; border-radius: 8px; border: 1px solid #333;
+      background: #1a1a1a; color: #ccc; cursor: pointer; font-size: 13px;
+      font-weight: 500; transition: all 0.2s;
+    }
+    .wiz-btn:hover { background: #252525; border-color: #555; }
+    .wiz-btn.primary {
+      background: linear-gradient(135deg, #FFD700, #FFC000);
+      color: #111; border-color: #FFD700; font-weight: 600;
+    }
+    .wiz-btn.primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .wiz-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .wiz-btn.ghost { background: none; border: none; color: #666; }
+    .wiz-btn.ghost:hover { color: #fff; background: none; }
+    .wiz-review-card {
+      background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 12px;
+      padding: 16px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .wiz-review-card .rv-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; padding: 4px 0;
+    }
+    .wiz-review-card .rv-label { color: #666; }
+    .wiz-review-card .rv-value { color: #ddd; font-weight: 500; }
+    .wiz-review-card .rv-badge {
+      display: inline-block; padding: 2px 10px; border-radius: 12px;
+      font-size: 11px; font-weight: 600;
+    }
+    .rv-badge.high { background: #4ade8022; color: #4ade80; }
+    .rv-badge.medium { background: #FFD70022; color: #FFD700; }
+    .rv-badge.low { background: #f4444422; color: #f44; }
+    .wiz-loading {
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      padding: 40px; color: #999;
+    }
+    .wiz-spinner {
+      width: 40px; height: 40px; border: 3px solid #222;
+      border-top-color: #FFD700; border-radius: 50%;
+      animation: wiz-spin 0.8s linear infinite;
+    }
+    @keyframes wiz-spin { to { transform: rotate(360deg); } }
+
   </style>
 </head>
 <body>
@@ -1546,7 +1681,12 @@ document.addEventListener('keydown', function(e) {
     <p class="sub">Select a project to load, or create a new one.</p>
     <div style="display:flex;gap:8px;">
       <input type="text" id="new-project-name" placeholder="Project name..." style="flex:1;">
-      <button class="sf-btn primary" onclick="createProject()">+ Create</button>
+      <button class="sf-btn primary" onclick="createProject()">+ Quick Create</button>
+    </div>
+    <div style="margin-top:8px;">
+      <button class="sf-btn" style="width:100%;border-color:#FFD70044;color:#FFD700;background:linear-gradient(135deg,#1a1a1a,#222);" onclick="closeProjects();openWizard();">
+        ✨ Guided Setup — lock in fonts, colors, design specs
+      </button>
     </div>
     <div id="project-list" style="margin-top:12px;"></div>
     <div class="btn-row"><button onclick="closeProjects()">Close</button></div>
@@ -1607,7 +1747,297 @@ document.addEventListener('keydown', function(e) {
   </div>
 </div>
 
-<!-- Hidden thumbnail renderer for component library -->
+<!-- ═══════════════════════════════════════════════════════════
+     ONBOARDING WIZARD MODAL
+     ═══════════════════════════════════════════════════════════ -->
+<div class="wizard-overlay" id="wizard-overlay">
+  <div class="wizard-panel">
+    <div class="wizard-header">
+      <div class="wiz-icon">✨</div>
+      <div>
+        <h2>New Project — Guided Setup</h2>
+        <div class="wiz-sub">Lock in your design DNA. What you specify here stays locked forever.</div>
+      </div>
+    </div>
+
+    <div class="wizard-steps">
+      <div class="wstep active" data-step="1"><span class="step-num">1</span> Info</div>
+      <div class="wstep" data-step="2"><span class="step-num">2</span> Brand</div>
+      <div class="wstep" data-step="3"><span class="step-num">3</span> Inspiration</div>
+      <div class="wstep" data-step="4"><span class="step-num">4</span> Review</div>
+    </div>
+
+    <div class="wizard-body" id="wizard-body"></div>
+
+    <div class="wizard-footer" id="wizard-footer">
+      <button class="wiz-btn ghost" onclick="closeWizard()">Cancel</button>
+      <div style="display:flex;gap:8px;">
+        <button class="wiz-btn" id="wiz-back-btn" style="display:none;" onclick="wizPrev()">← Back</button>
+        <button class="wiz-btn primary" id="wiz-next-btn" onclick="wizNext()">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ONBOARDING WIZARD JAVASCRIPT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+/* ── Wizard State ── */
+var wizStep = 1;
+var wizData = {
+  name: '', site_type: 'landing_page', industry: '',
+  brand_name: '', voice: '',
+  fonts: { headline: '', body: '', ui: '' },
+  colors: [],
+  logo_url: '',
+  screenshots: [], scrape_urls: [], seed_html: ''
+};
+
+/* ── Open / Close ── */
+function openWizard() {
+  wizStep = 1; wizData = { name: '', site_type: 'landing_page', industry: '',
+    brand_name: '', voice: '', fonts: { headline: '', body: '', ui: '' },
+    colors: [], logo_url: '', screenshots: [], scrape_urls: [], seed_html: '' };
+  document.getElementById('wizard-overlay').classList.add('open');
+  renderWizStep();
+}
+function closeWizard() { document.getElementById('wizard-overlay').classList.remove('open'); }
+
+/* ── Navigation ── */
+function wizNext() {
+  if (wizStep === 4) { wizCreate(); return; }
+  wizStep++; renderWizStep();
+}
+function wizPrev() { if (wizStep > 1) { wizStep--; renderWizStep(); } }
+
+function updateNavButtons() {
+  document.getElementById('wiz-back-btn').style.display = wizStep > 1 ? '' : 'none';
+  var next = document.getElementById('wiz-next-btn');
+  next.textContent = wizStep === 4 ? '🚀 Create Project' : 'Next →';
+  if (wizStep === 4) next.classList.add('primary'); else next.classList.add('primary');
+}
+
+function setStepUI() {
+  document.querySelectorAll('.wstep').forEach(function(el) {
+    var s = parseInt(el.dataset.step);
+    el.classList.remove('active', 'done');
+    if (s === wizStep) el.classList.add('active');
+    else if (s < wizStep) el.classList.add('done');
+  });
+  updateNavButtons();
+}
+
+/* ── Sync step 1 data before moving on ── */
+function syncStep1() {
+  var nm = document.getElementById('wiz-name');
+  if (nm) wizData.name = nm.value.trim();
+  var tp = document.getElementById('wiz-type');
+  if (tp) wizData.site_type = tp.value;
+  var ind = document.getElementById('wiz-industry');
+  if (ind) wizData.industry = ind.value.trim();
+  var br = document.getElementById('wiz-brand');
+  if (br) wizData.brand_name = br.value.trim();
+  var vo = document.getElementById('wiz-voice');
+  if (vo) wizData.voice = vo.value.trim();
+}
+function syncStep2() {
+  var hl = document.getElementById('wiz-font-hl');
+  if (hl) wizData.fonts.headline = hl.value.trim();
+  var bd = document.getElementById('wiz-font-body');
+  if (bd) wizData.fonts.body = bd.value.trim();
+  var ui = document.getElementById('wiz-font-ui');
+  if (ui) wizData.fonts.ui = ui.value.trim();
+  var lo = document.getElementById('wiz-logo');
+  if (lo) wizData.logo_url = lo.value.trim();
+}
+function syncStep3() {
+  var sc = document.getElementById('wiz-screenshots');
+  if (sc) wizData.screenshots = sc.value.split('\n').filter(Boolean).map(function(s) { return s.trim(); });
+  var su = document.getElementById('wiz-urls');
+  if (su) wizData.scrape_urls = su.value.split('\n').filter(Boolean).map(function(s) { return s.trim(); });
+  var sh = document.getElementById('wiz-seed');
+  if (sh) wizData.seed_html = sh.value.trim();
+}
+
+/* ── Render current step ── */
+function renderWizStep() {
+  // Sync previous step data
+  if (wizStep > 1) { syncStep1(); syncStep2(); syncStep3(); }
+
+  var body = document.getElementById('wizard-body');
+  var h = '';
+
+  if (wizStep === 1) {
+    h += '<h4>📋 Project Information</h4>';
+    h += '<div class="wiz-row"><div class="wiz-field"><label>Project Name *</label><input type="text" id="wiz-name" placeholder="e.g. SigmaCal" value="' + esc(wizData.name) + '"></div>';
+    h += '<div class="wiz-field"><label>Site Type</label><select id="wiz-type"><option' + (wizData.site_type==='landing_page'?' selected':'') + '>landing_page</option><option' + (wizData.site_type==='saas'?' selected':'') + '>saas</option><option' + (wizData.site_type==='ecommerce'?' selected':'') + '>ecommerce</option><option' + (wizData.site_type==='agency'?' selected':'') + '>agency</option><option' + (wizData.site_type==='blog'?' selected':'') + '>blog</option></select></div></div>';
+    h += '<div class="wiz-row"><div class="wiz-field"><label>Industry</label><input type="text" id="wiz-industry" placeholder="e.g. fitness tracking" value="' + esc(wizData.industry) + '"></div>';
+    h += '<div class="wiz-field"><label>Brand Name</label><input type="text" id="wiz-brand" placeholder="e.g. SigmaCal" value="' + esc(wizData.brand_name) + '"></div></div>';
+    h += '<div class="wiz-field"><label>Brand Voice / Tone</label><input type="text" id="wiz-voice" placeholder="e.g. gritty, motivational, premium" value="' + esc(wizData.voice) + '"></div>';
+  }
+
+  else if (wizStep === 2) {
+    h += '<h4>🎨 Brand Identity</h4>';
+    h += '<div class="wiz-field"><label>Headline Font</label><input type="text" id="wiz-font-hl" placeholder="e.g. Bebas Neue" value="' + esc(wizData.fonts.headline) + '"></div>';
+    h += '<div class="wiz-row"><div class="wiz-field"><label>Body Font</label><input type="text" id="wiz-font-body" placeholder="e.g. Cinzel" value="' + esc(wizData.fonts.body) + '"></div>';
+    h += '<div class="wiz-field"><label>UI Font</label><input type="text" id="wiz-font-ui" placeholder="e.g. Inter" value="' + esc(wizData.fonts.ui) + '"></div></div>';
+    h += '<div class="wiz-field"><label>Logo URL (optional)</label><input type="text" id="wiz-logo" placeholder="https://..." value="' + esc(wizData.logo_url) + '"></div>';
+    h += '<div class="wiz-field">';
+    h += '<label>🎨 Brand Colors</label>';
+    h += '<div class="wiz-color-picker" id="wiz-colors">';
+    h += renderColorPills();
+    h += '<div class="wiz-color-add" onclick="addColor()" title="Add color">+</div>';
+    h += '</div>';
+    h += '<input type="text" id="wiz-color-input" placeholder="Type #hex like #22c55e and press Enter" style="margin-top:6px;width:100%;" onkeydown="if(event.key===\'Enter\'){addColorFromInput();event.preventDefault();}">';
+    h += '</div>';
+  }
+
+  else if (wizStep === 3) {
+    h += '<h4>🖼️ Design Inspiration</h4>';
+    h += '<p style="color:#666;font-size:12px;margin:0;">Anything you leave blank will be auto-detected by AI.</p>';
+    h += '<div class="wiz-field"><label>Screenshot URLs (one per line)</label><textarea id="wiz-screenshots" placeholder="https://your-design-mockup.png\nhttps://inspiration-site-screenshot.png">' + esc(wizData.screenshots.join('\n')) + '</textarea></div>';
+    h += '<div class="wiz-field"><label>Inspiration / Competitor URLs (one per line)</label><textarea id="wiz-urls" placeholder="https://existing-site.com\nhttps://competitor.com">' + esc(wizData.scrape_urls.join('\n')) + '</textarea></div>';
+    h += '<div class="wiz-field"><label>Seed HTML (optional starter code)</label><textarea id="wiz-seed" placeholder="Paste existing HTML/CSS if you have a starting point..." style="min-height:100px;">' + esc(wizData.seed_html) + '</textarea></div>';
+  }
+
+  else if (wizStep === 4) {
+    syncStep1(); syncStep2(); syncStep3();
+    h += '<h4>✅ Review Your Spec</h4>';
+    h += '<div class="wiz-review-card">';
+    h += '<div class="rv-row"><span class="rv-label">Project</span><span class="rv-value">' + esc(wizData.name || '(not set)') + '</span></div>';
+    h += '<div class="rv-row"><span class="rv-label">Type</span><span class="rv-value">' + esc(wizData.site_type) + '</span></div>';
+    if (wizData.industry) h += '<div class="rv-row"><span class="rv-label">Industry</span><span class="rv-value">' + esc(wizData.industry) + '</span></div>';
+    if (wizData.brand_name) h += '<div class="rv-row"><span class="rv-label">Brand</span><span class="rv-value">' + esc(wizData.brand_name) + '</span></div>';
+    if (wizData.voice) h += '<div class="rv-row"><span class="rv-label">Voice</span><span class="rv-value">' + esc(wizData.voice) + '</span></div>';
+    h += '<div class="rv-row"><span class="rv-label">Headline Font</span><span class="rv-value">' + esc(wizData.fonts.headline || '(auto-detect)') + '</span></div>';
+    h += '<div class="rv-row"><span class="rv-label">Body Font</span><span class="rv-value">' + esc(wizData.fonts.body || '(auto-detect)') + '</span></div>';
+    if (wizData.fonts.ui) h += '<div class="rv-row"><span class="rv-label">UI Font</span><span class="rv-value">' + esc(wizData.fonts.ui) + '</span></div>';
+    h += '<div class="rv-row"><span class="rv-label">Colors</span><span class="rv-value">' + (wizData.colors.length ? wizData.colors.map(function(c){ return '<span class="wiz-chip" style="background:' + c + '33;border-color:' + c + ';">' + c + '</span>'; }).join(' ') : '(auto-detect)') + '</span></div>';
+    h += '<div class="rv-row"><span class="rv-label">Screenshots</span><span class="rv-value">' + (wizData.screenshots.length || 0) + ' provided</span></div>';
+    h += '<div class="rv-row"><span class="rv-label">Inspiration URLs</span><span class="rv-value">' + (wizData.scrape_urls.length || 0) + ' provided</span></div>';
+    h += '<div class="rv-row"><span class="rv-label">Seed HTML</span><span class="rv-value">' + (wizData.seed_html ? '✓ ' + (wizData.seed_html.length > 100 ? wizData.seed_html.substring(0, 100) + '...' : wizData.seed_html) : '(none)') + ' — will generate fresh</span></div>';
+    h += '</div>';
+    h += '<p style="color:#4ade80;font-size:12px;text-align:center;">🔒 What you specified above will be locked and NEVER overridden by AI.</p>';
+  }
+
+  body.innerHTML = h;
+  setStepUI();
+}
+
+function esc(s) { if (!s) return ''; return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+/* ── Color Management ── */
+function renderColorPills() {
+  return wizData.colors.map(function(c, i) {
+    return '<div class="wiz-color-dot selected" style="background:' + c + ';" title="' + c + ' — click to remove" onclick="removeColor(' + i + ')"></div>';
+  }).join('');
+}
+function addColorFromInput() {
+  var inp = document.getElementById('wiz-color-input');
+  var val = inp.value.trim();
+  if (!val) return;
+  if (!val.startsWith('#')) { inp.style.borderColor = '#f44'; setTimeout(function() { inp.style.borderColor = '#2a2a2a'; }, 1500); return; }
+  if (wizData.colors.indexOf(val) >= 0) { inp.value = ''; return; }
+  wizData.colors.push(val);
+  inp.value = '';
+  renderWizStep();
+}
+function addColor() { document.getElementById('wiz-color-input').focus(); }
+function removeColor(i) { wizData.colors.splice(i, 1); renderWizStep(); }
+
+/* ── Create Project via Onboard API ── */
+function wizCreate() {
+  var name = wizData.name || 'Untitled';
+  var body = document.getElementById('wizard-body');
+  var footer = document.getElementById('wizard-footer');
+
+  // Show loading state
+  body.innerHTML = '<div class="wiz-loading"><div class="wiz-spinner"></div><div>Analyzing design specs...</div><div style="font-size:11px;color:#555;">Scraping URLs · Detecting fonts · Merging spec</div></div>';
+  footer.innerHTML = '<div style="width:100%;text-align:center;color:#666;">Please wait...</div>';
+
+  // Build known payload
+  var known = { site_type: wizData.site_type, pages: ['home'] };
+  if (wizData.industry) known.industry = wizData.industry;
+  if (wizData.brand_name) known.brand_name = wizData.brand_name;
+  if (wizData.voice) known.voice = wizData.voice;
+  if (wizData.logo_url) known.logo_url = wizData.logo_url;
+  if (wizData.seed_html) known.seed_html = wizData.seed_html;
+  if (wizData.fonts.headline || wizData.fonts.body || wizData.fonts.ui) {
+    known.fonts = {};
+    if (wizData.fonts.headline) known.fonts.headline = wizData.fonts.headline;
+    if (wizData.fonts.body) known.fonts.body = wizData.fonts.body;
+    if (wizData.fonts.ui) known.fonts.ui = wizData.fonts.ui;
+  }
+  if (wizData.colors.length) known.colors = wizData.colors.slice();
+
+  var payload = {
+    project_name: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+    known: known,
+    scrape_urls: wizData.scrape_urls,
+    screenshots: wizData.screenshots,
+    generate_concepts: false,
+    build_immediately: false
+  };
+
+  var tag = document.getElementById('new-project-name');
+  if (tag) tag.value = wizData.name;
+
+  fetch('/api/ai/project-onboard', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(r) { return r.json(); }).then(function(specData) {
+    // Now create the actual GrapesJS project and attach the spec
+    return api('POST', '/api/projects', {
+      name: wizData.name,
+      theme_css: currentThemeCss,
+      spec: specData.spec,
+      confidence: specData.confidence,
+      onboarded: true
+    }).then(function(projectData) {
+      projectData._spec = specData;
+      return projectData;
+    });
+  }).then(function(projectData) {
+    currentProjectId = projectData.id;
+    currentPageId = 'home';
+    closeWizard();
+    refreshProjectList();
+
+    // Show spec summary toast
+    var spec = projectData._spec;
+    var conf = spec.confidence || {};
+    var colorBadge = conf.colors === 'high' ? '🟢' : conf.colors === 'medium' ? '🟡' : '🔴';
+    var fontBadge = conf.fonts === 'high' ? '🟢' : conf.fonts === 'medium' ? '🟡' : '🔴';
+
+    var specMsg = 'Created: ' + projectData.name + ' ✓\n' +
+      'Spec locked: ' + fontBadge + ' fonts | ' + colorBadge + ' colors\n' +
+      (spec.spec ? 'Fonts: ' + (spec.spec.fonts ? (spec.spec.fonts.headline || 'auto') + ' / ' + (spec.spec.fonts.body || 'auto') : 'auto-detect') : '') + '\n' +
+      (spec.gaps ? spec.gaps.length + ' gaps to fill | ' : '') +
+      (spec.warnings ? spec.warnings.length + ' warnings' : '0 warnings');
+
+    setStatus(specMsg.replace(/\n/g, ' · '), true);
+    loadProject(projectData.id);
+
+    // Show quick summary for a few seconds
+    showToast(specMsg);
+  }).catch(function(err) {
+    body.innerHTML = '<div style="padding:24px;color:#f44;text-align:center;"><p>❌ Setup failed</p><p style="font-size:12px;color:#666;">' + err.message + '</p></div>';
+    footer.innerHTML = '<button class="wiz-btn ghost" onclick="closeWizard()">Cancel</button>' +
+      '<div style="display:flex;gap:8px;"><button class="wiz-btn primary" onclick="wizStep=4;renderWizStep();updateNavButtons();">← Back &amp; Fix</button></div>';
+  });
+}
+
+/* ── Toast Notification ── */
+function showToast(msg) {
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:16px 20px;color:#ddd;font-size:12px;z-index:20000;white-space:pre-line;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:slideIn 0.3s ease;';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 5000);
+}
+</script>
 <div id="thumbnail-render" style="position:fixed;left:-9999px;top:0;width:400px;pointer-events:none;"></div>
 
 </body>
