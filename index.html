@@ -1791,14 +1791,16 @@ var wizData = {
   fonts: { headline: '', body: '', ui: '' },
   colors: [],
   logo_url: '',
-  screenshots: [], scrape_urls: [], seed_html: ''
+  screenshots: [], scrape_urls: [], seed_html: '',
+  uploadedImages: [], selectedConcept: null, conceptTaskIds: []
 };
 
 /* ── Open / Close ── */
 function openWizard() {
   wizStep = 1; wizData = { name: '', site_type: 'landing_page', industry: '',
     brand_name: '', voice: '', fonts: { headline: '', body: '', ui: '' },
-    colors: [], logo_url: '', screenshots: [], scrape_urls: [], seed_html: '' };
+    colors: [], logo_url: '', screenshots: [], scrape_urls: [], seed_html: '',
+    uploadedImages: [], selectedConcept: null, conceptTaskIds: [] };
   document.getElementById('wizard-overlay').classList.add('open');
   renderWizStep();
 }
@@ -1896,9 +1898,64 @@ function renderWizStep() {
   else if (wizStep === 3) {
     h += '<h4>🖼️ Design Inspiration</h4>';
     h += '<p style="color:#666;font-size:12px;margin:0;">Anything you leave blank will be auto-detected by AI.</p>';
+
+    // File upload
+    h += '<div class="wiz-field">';
+    h += '<label>📸 Upload Screenshots</label>';
+    h += '<div style="display:flex;gap:8px;align-items:center;">';
+    h += '<input type="file" id="wiz-file-input" accept="image/*" multiple style="display:none;" onchange="handleFileUpload(event)">';
+    h += '<button class="wiz-btn" onclick="document.getElementById(\'wiz-file-input\').click()" style="flex:1;">Choose Images...</button>';
+    h += '</div>';
+    if (wizData.uploadedImages.length) {
+      h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">';
+      wizData.uploadedImages.forEach(function(img, i) {
+        h += '<div style="position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid #333;">';
+        h += '<img src="' + esc(img.url) + '" style="width:100%;height:100%;object-fit:cover;">';
+        h += '<div onclick="removeUploadedImage(' + i + ')" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);color:#f44;width:18px;height:18px;border-radius:50%;text-align:center;line-height:18px;font-size:11px;cursor:pointer;">×</div>';
+        h += '</div>';
+      });
+      h += '</div>';
+    }
+    h += '</div>';
+
+    // URLs
     h += '<div class="wiz-field"><label>Screenshot URLs (one per line)</label><textarea id="wiz-screenshots" placeholder="https://your-design-mockup.png\nhttps://inspiration-site-screenshot.png">' + esc(wizData.screenshots.join('\n')) + '</textarea></div>';
     h += '<div class="wiz-field"><label>Inspiration / Competitor URLs (one per line)</label><textarea id="wiz-urls" placeholder="https://existing-site.com\nhttps://competitor.com">' + esc(wizData.scrape_urls.join('\n')) + '</textarea></div>';
     h += '<div class="wiz-field"><label>Seed HTML (optional starter code)</label><textarea id="wiz-seed" placeholder="Paste existing HTML/CSS if you have a starting point..." style="min-height:100px;">' + esc(wizData.seed_html) + '</textarea></div>';
+
+    // Concept generation
+    h += '<div style="margin-top:8px;padding:16px;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:12px;">';
+    h += '<h4 style="margin:0 0 8px;">🎨 Generate AI Hero Concepts</h4>';
+    h += '<p style="color:#666;font-size:11px;margin:0 0 12px;">Generate 3 above-the-fold concept images based on your brand colors and fonts. Pick one as your design reference.</p>';
+
+    if (wizData.selectedConcept) {
+      // Show selected concept
+      h += '<div style="text-align:center;">';
+      h += '<div style="position:relative;display:inline-block;border:2px solid #FFD700;border-radius:12px;overflow:hidden;">';
+      h += '<img src="' + esc(wizData.selectedConcept.url) + '" style="max-width:100%;max-height:240px;display:block;">';
+      h += '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);padding:6px 12px;font-size:12px;color:#FFD700;">✅ Selected — ' + esc(wizData.selectedConcept.style) + '</div>';
+      h += '</div>';
+      h += '<br><button class="wiz-btn" onclick="wizData.selectedConcept = null; renderWizStep();" style="margin-top:8px;">Change Selection</button>';
+      h += '</div>';
+    } else if (wizData.conceptTaskIds.length > 0 && !wizData._conceptsLoaded) {
+      // Polling
+      h += '<div id="concept-poll-area"><div class="wiz-loading" style="padding:20px;"><div class="wiz-spinner"></div><div>Generating hero concepts...</div><div style="font-size:11px;color:#555;">Polling KIE tasks...</div></div></div>';
+    } else if (wizData._concepts && wizData._concepts.length) {
+      // Show concepts for selection
+      h += '<div style="display:flex;gap:12px;flex-wrap:wrap;">';
+      wizData._concepts.forEach(function(c, i) {
+        h += '<div onclick="selectConcept(' + i + ')" style="flex:1;min-width:160px;cursor:pointer;border:1px solid #333;border-radius:12px;overflow:hidden;transition:all 0.2s;background:#111;">';
+        h += '<img src="' + esc(c.url || c.image_url || '') + '" style="width:100%;height:120px;object-fit:cover;" onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22><rect fill=%22%23111%22 width=%22200%22 height=%22120%22/><text fill=%22%23555%22 x=%22100%22 y=%2265%22 text-anchor=%22middle%22 font-size=%2212%22>Loading...</text></svg>\';">';
+        h += '<div style="padding:8px;">';
+        h += '<div style="font-size:11px;color:#999;text-transform:capitalize;">' + esc(c.style || c.id || 'Concept ' + (i+1)) + '</div>';
+        h += '</div></div>';
+      });
+      h += '</div>';
+      h += '<button class="wiz-btn" onclick="wizData._concepts = null; wizData._conceptsLoaded = false; wizData.conceptTaskIds = []; renderWizStep();" style="margin-top:8px;">Regenerate</button>';
+    } else {
+      h += '<button class="wiz-btn primary" onclick="generateConcepts()" style="width:100%;">✨ Generate 3 Concepts</button>';
+    }
+    h += '</div>';
   }
 
   else if (wizStep === 4) {
@@ -1914,8 +1971,11 @@ function renderWizStep() {
     h += '<div class="rv-row"><span class="rv-label">Body Font</span><span class="rv-value">' + esc(wizData.fonts.body || '(auto-detect)') + '</span></div>';
     if (wizData.fonts.ui) h += '<div class="rv-row"><span class="rv-label">UI Font</span><span class="rv-value">' + esc(wizData.fonts.ui) + '</span></div>';
     h += '<div class="rv-row"><span class="rv-label">Colors</span><span class="rv-value">' + (wizData.colors.length ? wizData.colors.map(function(c){ return '<span class="wiz-chip" style="background:' + c + '33;border-color:' + c + ';">' + c + '</span>'; }).join(' ') : '(auto-detect)') + '</span></div>';
-    h += '<div class="rv-row"><span class="rv-label">Screenshots</span><span class="rv-value">' + (wizData.screenshots.length || 0) + ' provided</span></div>';
+    h += '<div class="rv-row"><span class="rv-label">Screenshots</span><span class="rv-value">' + (wizData.screenshots.length || 0) + ' provided' + (wizData.uploadedImages.length ? ' (' + wizData.uploadedImages.length + ' uploaded)' : '') + '</span></div>';
     h += '<div class="rv-row"><span class="rv-label">Inspiration URLs</span><span class="rv-value">' + (wizData.scrape_urls.length || 0) + ' provided</span></div>';
+    if (wizData.selectedConcept) {
+      h += '<div class="rv-row"><span class="rv-label">Hero Concept</span><span class="rv-value" style="color:#FFD700;">✅ ' + esc(wizData.selectedConcept.style) + '</span></div>';
+    }
     h += '<div class="rv-row"><span class="rv-label">Seed HTML</span><span class="rv-value">' + (wizData.seed_html ? '✓ ' + (wizData.seed_html.length > 100 ? wizData.seed_html.substring(0, 100) + '...' : wizData.seed_html) : '(none)') + ' — will generate fresh</span></div>';
     h += '</div>';
     h += '<p style="color:#4ade80;font-size:12px;text-align:center;">🔒 What you specified above will be locked and NEVER overridden by AI.</p>';
@@ -1923,6 +1983,137 @@ function renderWizStep() {
 
   body.innerHTML = h;
   setStepUI();
+}
+
+/* ── File Upload ── */
+function handleFileUpload(event) {
+  var files = event.target.files;
+  if (!files || !files.length) return;
+  var total = files.length;
+  var done = 0;
+  for (var i = 0; i < files.length; i++) {
+    uploadFile(files[i], function(url) {
+      done++;
+      if (done === total) renderWizStep();
+    });
+  }
+}
+function uploadFile(file, callback) {
+  var formData = new FormData();
+  formData.append('file', file);
+  fetch('/api/assets/upload', { method: 'POST', body: formData })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.url) {
+        wizData.uploadedImages.push({ url: data.url, name: file.name });
+        // Also add to screenshots array for the onboard API
+        wizData.screenshots.push(data.url);
+      }
+      if (callback) callback(data.url);
+    }).catch(function(err) {
+      console.error('Upload failed:', err);
+      if (callback) callback(null);
+    });
+}
+function removeUploadedImage(i) {
+  var url = wizData.uploadedImages[i].url;
+  wizData.uploadedImages.splice(i, 1);
+  wizData.screenshots = wizData.screenshots.filter(function(s) { return s !== url; });
+  renderWizStep();
+}
+
+/* ── Concept Generation ── */
+function generateConcepts() {
+  // Sync brand data first
+  syncStep1(); syncStep2();
+
+  var spec = { colors: wizData.colors, site_type: wizData.site_type };
+  if (wizData.fonts.headline) spec.fonts = { headline: wizData.fonts.headline, body: wizData.fonts.body || '' };
+  if (wizData.brand_name) spec.brand_name = wizData.brand_name;
+  if (wizData.industry) spec.industry = wizData.industry;
+
+  var payload = {
+    spec: spec,
+    style_keywords: wizData.voice ? wizData.voice.split(/[,;]/).map(function(s) { return s.trim(); }) : [],
+    count: 3
+  };
+
+  // Show loading
+  renderWizStep();
+
+  fetch('/api/ai/generate-concepts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    wizData.conceptTaskIds = data.task_ids || [];
+    wizData._conceptsLoaded = false;
+    wizData._concepts = null;
+    renderWizStep();
+    if (wizData.conceptTaskIds.length) pollConceptTasks();
+  }).catch(function(err) {
+    console.error('Concept gen failed:', err);
+    alert('Concept generation failed: ' + err.message);
+  });
+}
+
+function pollConceptTasks() {
+  if (!wizData.conceptTaskIds.length) return;
+  var remaining = wizData.conceptTaskIds.length;
+  var results = [];
+
+  wizData.conceptTaskIds.forEach(function(taskId, idx) {
+    pollOneTask(taskId, idx, function(result) {
+      results[idx] = result;
+      remaining--;
+      if (remaining === 0) {
+        // Dedupe and sort
+        var concepts = [];
+        var styles = ['dark_gritty', 'clean_modern', 'editorial'];
+        for (var i = 0; i < results.length; i++) {
+          if (results[i] && results[i].url) {
+            concepts.push({ url: results[i].url, style: styles[i] || 'Concept ' + (i+1) });
+          }
+        }
+        wizData._concepts = concepts;
+        wizData._conceptsLoaded = true;
+        renderWizStep();
+      }
+    });
+  });
+}
+
+function pollOneTask(taskId, idx, callback) {
+  fetch('/api/kie/record/' + taskId, { method: 'GET' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.state === 'success' && data.resultJson) {
+        try {
+          var rj = typeof data.resultJson === 'string' ? JSON.parse(data.resultJson) : data.resultJson;
+          var urls = rj.resultUrls || [];
+          callback({ url: urls[0] || '', data: data });
+        } catch(e) { callback(null); }
+      } else if (data.state === 'failed') {
+        callback(null);
+      } else {
+        // Still processing, poll again in 3s
+        setTimeout(function() { pollOneTask(taskId, idx, callback); }, 3000);
+      }
+    }).catch(function() {
+      setTimeout(function() { pollOneTask(taskId, idx, callback); }, 3000);
+    });
+}
+
+function selectConcept(idx) {
+  var c = wizData._concepts[idx];
+  if (c) {
+    wizData.selectedConcept = c;
+    // Add concept URL as primary screenshot for the spec
+    if (wizData.screenshots.indexOf(c.url) < 0) {
+      wizData.screenshots.unshift(c.url);
+    }
+    renderWizStep();
+  }
 }
 
 function esc(s) { if (!s) return ''; return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -1970,6 +2161,9 @@ function wizCreate() {
     if (wizData.fonts.ui) known.fonts.ui = wizData.fonts.ui;
   }
   if (wizData.colors.length) known.colors = wizData.colors.slice();
+  if (wizData.selectedConcept && wizData.selectedConcept.url) {
+    known.design_image_url = wizData.selectedConcept.url;
+  }
 
   var payload = {
     project_name: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
