@@ -1523,7 +1523,15 @@ function deleteProject(id) {
   });
 }
 
-function switchProject(id) { if (id) loadProject(id); }
+function switchProject(id) {
+  // Clear test mode if active
+  if (window._animTestActive) {
+    window._animTestActive = false;
+    var btn = document.querySelector('.anim-test-btn');
+    if (btn) { btn.textContent = '🧪 Anim Test'; btn.style.color = '#A383E6'; btn.style.borderColor = '#A383E644'; }
+  }
+  if (id) loadProject(id);
+}
 
 function switchPage(pageId) {
   if (!currentProjectId) return;
@@ -1924,6 +1932,21 @@ function aiGenerate() {
    ══════════════════════════════════════════════════════════════ */
 
 function loadAnimationTest() {
+  // If already in test mode, exit
+  if (window._animTestActive) {
+    exitAnimationTest();
+    return;
+  }
+
+  // Save current canvas state for exit
+  window._animTestPrevHTML = editor.getHtml();
+  window._animTestPrevCSS = editor.getCss();
+  window._animTestActive = true;
+
+  // Toggle button appearance
+  var btn = document.querySelector('.anim-test-btn');
+  if (btn) { btn.textContent = '← Exit Test'; btn.style.color = '#f44'; btn.style.borderColor = '#f44444'; }
+
   var testHTML = `
     <section class="wb-section" id="test-baseline">
       <div class="section-header"><div class="section-badge"><span class="sdot"></span><span>BASELINE</span></div><h2>1. No Animation (Baseline)</h2><p>These cards should appear instantly — no stagger.</p></div>
@@ -2027,6 +2050,23 @@ function loadAnimationTest() {
   `;
   editor.setComponents(testHTML);
   setStatus('🧪 Animation test page loaded — 12 test sections', true);
+}
+
+function exitAnimationTest() {
+  window._animTestActive = false;
+  var btn = document.querySelector('.anim-test-btn');
+  if (btn) { btn.textContent = '🧪 Anim Test'; btn.style.color = '#A383E6'; btn.style.borderColor = '#A383E644'; }
+
+  // Restore the saved canvas or fall back to homepage
+  if (window._animTestPrevHTML) {
+    editor.setComponents(window._animTestPrevHTML);
+    if (window._animTestPrevCSS) editor.setStyle(window._animTestPrevCSS);
+    setStatus('← Returned to previous project', true);
+  } else {
+    editor.setComponents(FULL_PAGE);
+    setStatus('🐾 Homepage restored', true);
+  }
+  if (typeof animEngine !== 'undefined') { setTimeout(function() { animEngine.reset(); animEngine.apply(); }, 300); }
 }
 
 
@@ -2322,7 +2362,7 @@ editor.on('load', function() {
 </script>
 
 
-<!-- ═══ PROJECTS MODAL ═══ -->
+<!-- Animation Panel --><div class="anim-panel" id="anim-panel"><h3>🎬 Animation</h3><div id="anim-content"><div class="anim-no-selection">Select a section to configure animations</div></div></div><!-- ═══ PROJECTS MODAL ═══ -->
 <div class="modal-overlay" id="projects-modal">
   <div class="modal">
     <h3>📂 Projects</h3>
@@ -3117,11 +3157,6 @@ editor.on('component:deselected', function() {
 </script>
 <div id="thumbnail-render" style="position:fixed;left:-9999px;top:0;width:400px;pointer-events:none;"></div>
 
-<!-- Animation Panel -->
-<div class="anim-panel" id="anim-panel">
-  <h3>🎬 Animation</h3>
-  <div id="anim-content"><div class="anim-no-selection">Select a section to configure animations</div></div>
-</div>
 
 </body>
 </html>
