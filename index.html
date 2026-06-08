@@ -3085,6 +3085,17 @@ var AnimationPanel = (function() {
     } else {
       _selected.setAttribute(name, val);
     }
+    // Sync to GrapesJS component model so attributes persist on save
+    var comp = getComponent(_selected);
+    if (comp) {
+      var attrs = {};
+      if (val === null || val === undefined || val === '') {
+        attrs[name] = '';
+      } else {
+        attrs[name] = val;
+      }
+      comp.addAttributes(attrs);
+    }
     if (typeof animEngine !== 'undefined') { animEngine.reset(); animEngine.apply(); }
     render();
   }
@@ -3097,12 +3108,19 @@ var AnimationPanel = (function() {
   window.AnimationPanel = {
     toggle: function() {
       if (!_selected) return;
+      var comp = getComponent(_selected);
       if (_selected.hasAttribute('data-animate')) {
         _selected.removeAttribute('data-animate');
         _selected.removeAttribute('data-stagger');
+        if (comp) {
+          comp.addAttributes({ 'data-animate': '', 'data-stagger': '' });
+        }
       } else {
         _selected.setAttribute('data-animate', 'fade-up');
         _selected.setAttribute('data-stagger', '120');
+        if (comp) {
+          comp.addAttributes({ 'data-animate': 'fade-up', 'data-stagger': '120' });
+        }
       }
       if (typeof animEngine !== 'undefined') { animEngine.reset(); animEngine.apply(); }
       render();
@@ -3114,9 +3132,13 @@ var AnimationPanel = (function() {
     setTrigger: function(val) { setAttr('data-trigger', val); },
     staggerChildren: function() {
       if (!_selected) return;
+      var comp = getComponent(_selected);
       if (!_selected.hasAttribute('data-animate')) {
         _selected.setAttribute('data-animate', 'fade-up');
         _selected.setAttribute('data-stagger', '120');
+        if (comp) {
+          comp.addAttributes({ 'data-animate': 'fade-up', 'data-stagger': '120' });
+        }
       }
       // Find grid children first, then direct children, then self
       var grids = _selected.querySelectorAll('.testimonials-grid, .services-grid, .steps-grid, [class*="-grid"]');
