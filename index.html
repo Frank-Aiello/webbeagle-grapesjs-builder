@@ -3118,6 +3118,7 @@ var AnimationPanel = (function() {
         _selected.setAttribute('data-animate', 'fade-up');
         _selected.setAttribute('data-stagger', '120');
       }
+      // Find grid children first, then direct children, then self
       var grids = _selected.querySelectorAll('.testimonials-grid, .services-grid, .steps-grid, [class*="-grid"]');
       if (grids.length > 0) {
         grids.forEach(function(grid) {
@@ -3126,11 +3127,16 @@ var AnimationPanel = (function() {
           });
         });
       } else {
-        Array.from(_selected.children).forEach(function(child) {
-          if (child.nodeType === 1 && !child.classList.contains('section-header')) {
-            child.setAttribute('data-animate-item', '');
-          }
+        var directChildren = Array.from(_selected.children).filter(function(c) {
+          return c.nodeType === 1 && !c.classList.contains('section-header');
         });
+        if (directChildren.length > 0) {
+          directChildren.forEach(function(child) {
+            child.setAttribute('data-animate-item', '');
+          });
+        }
+        // Always tag self as well — handles standalone elements like h2, p, etc.
+        _selected.setAttribute('data-animate-item', '');
       }
       if (typeof animEngine !== 'undefined') { animEngine.reset(); animEngine.apply(); }
       render();
@@ -3139,17 +3145,12 @@ var AnimationPanel = (function() {
     hide: hide
   };
 
-  return { show: show, hide: hide };
+  return window.AnimationPanel;
 })();
 
 // Wire panel to editor selection
 editor.on('component:selected', function(component) {
-  var tag = (component.get('tagName') || '').toLowerCase();
-  var classes = component.get('classes');
-  var classStr = classes ? classes.toString() : '';
-  if (tag === 'section' || classStr.indexOf('wb-section') >= 0) {
-    AnimationPanel.show(component.getEl());
-  }
+  AnimationPanel.show(component.getEl());
 });
 editor.on('component:deselected', function() {
   AnimationPanel.hide();

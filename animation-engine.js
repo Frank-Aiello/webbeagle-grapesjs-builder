@@ -77,6 +77,20 @@ var AnimationEngine = (function() {
           item._wbAnimated = true;
         });
 
+        // Self-animating: element has data-animate but no children — animate itself
+        if (items.length === 0) {
+          var self = section;
+          self.classList.add('wb-animated');
+          self.setAttribute('data-animate', animType);
+          self.style.setProperty('--wb-anim-delay', '0ms');
+          self.style.setProperty('--wb-anim-duration', duration + 'ms');
+          self.style.setProperty('--wb-anim-easing', easing);
+          self.style.setProperty('--wb-anim-opacity-start', startOp);
+          self.style.setProperty('--wb-anim-offset', offset + 'px');
+          self._wbAnimated = true;
+          items = [self];
+        }
+
         section._wbAnimated = true;
 
         // Load-triggered items play immediately
