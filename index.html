@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebBeagle Builder (GrapesJS)</title>
   <link rel="stylesheet" href="https://unpkg.com/grapesjs/dist/css/grapes.min.css">
+  <!-- Plugin dependencies -->
+  <link rel="stylesheet" href="https://unpkg.com/grapick/dist/grapick.min.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; font-family: Inter, system-ui, sans-serif; }
@@ -108,57 +110,162 @@
     .live-toggle { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #999; }
     .live-toggle input[type=checkbox] { accent-color: #FFD700; }
 
-    /* ═══ ONBOARDING WIZARD ═══ */
+    /* ═══ ONBOARDING WIZARD — WEB BEAGLE BRANDED ═══ */
     .wizard-overlay {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88);
       z-index: 10001; justify-content: center; align-items: center;
     }
     .wizard-overlay.open { display: flex; }
     .wizard-panel {
-      background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
-      border: 1px solid #2a2a2a; border-radius: 16px;
-      width: 640px; max-width: 94vw; max-height: 88vh;
+      background: linear-gradient(160deg, #0d0d0d 0%, #1a1a1a 40%, #141414 100%);
+      border: 1px solid #2a2a2a; border-radius: 20px;
+      width: 780px; max-width: 95vw; max-height: 90vh;
       overflow: hidden; display: flex; flex-direction: column;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+      box-shadow: 0 32px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(163,131,230,0.08);
     }
+    /* ── Header with Beagle ── */
     .wizard-header {
       padding: 20px 28px; border-bottom: 1px solid #222;
-      display: flex; align-items: center; gap: 14px;
+      display: flex; align-items: center; gap: 16px;
+      background: linear-gradient(180deg, rgba(163,131,230,0.06) 0%, transparent 100%);
     }
-    .wizard-header .wiz-icon {
-      width: 42px; height: 42px; border-radius: 10px;
-      background: linear-gradient(135deg, #FFD700, #FFC000);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; color: #111;
+    .wizard-header .wiz-beagle {
+      width: 52px; height: 52px; border-radius: 50%;
+      border: 2px solid #A383E6; overflow: hidden;
+      flex-shrink: 0; position: relative;
+      box-shadow: 0 0 20px rgba(163,131,230,0.25);
+    }
+    .wizard-header .wiz-beagle img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .wizard-header .wiz-beagle.tail-wag img {
+      animation: beagleWag 0.4s ease-in-out 3;
+    }
+    @keyframes beagleWag {
+      0%,100% { transform: rotate(0); }
+      25% { transform: rotate(6deg); }
+      75% { transform: rotate(-6deg); }
     }
     .wizard-header h2 { color: #fff; font-size: 18px; margin: 0; font-weight: 600; }
     .wizard-header .wiz-sub { color: #666; font-size: 12px; margin: 2px 0 0; }
+    /* ── Paw Print Progress ── */
     .wizard-steps {
       display: flex; padding: 0 28px; gap: 0;
       border-bottom: 1px solid #222; background: #0a0a0a;
     }
     .wizard-steps .wstep {
-      flex: 1; text-align: center; padding: 14px 8px 12px;
+      flex: 1; text-align: center; padding: 16px 8px 14px;
       font-size: 11px; color: #555; font-weight: 500;
       border-bottom: 2px solid transparent; cursor: pointer;
-      transition: all 0.2s;
-      letter-spacing: 0.3px;
+      transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+      letter-spacing: 0.3px; display: flex; align-items: center;
+      justify-content: center; gap: 6px;
     }
+    .wizard-steps .wstep svg { width: 18px; height: 18px; opacity: 0.35; transition: all 0.3s; }
     .wizard-steps .wstep.active { color: #FFD700; border-bottom-color: #FFD700; }
-    .wizard-steps .wstep.done { color: #4ade80; }
-    .wizard-steps .wstep .step-num {
-      display: inline-block; width: 20px; height: 20px; border-radius: 50%;
-      background: #222; color: #666; font-size: 11px; line-height: 20px;
-      margin-right: 4px; font-weight: 700;
-    }
-    .wizard-steps .wstep.active .step-num { background: #FFD700; color: #111; }
-    .wizard-steps .wstep.done .step-num { background: #4ade80; color: #111; }
+    .wizard-steps .wstep.active svg { opacity: 1; }
+    .wizard-steps .wstep.done { color: #A383E6; }
+    .wizard-steps .wstep.done svg { opacity: 0.7; }
+    /* ── Comic Strip Body ── */
     .wizard-body {
-      flex: 1; overflow-y: auto; padding: 24px 28px;
-      display: flex; flex-direction: column; gap: 16px;
+      flex: 1; overflow-y: auto; padding: 0;
+      display: flex; flex-direction: column;
     }
-    .wizard-body h4 { color: #ddd; font-size: 13px; margin: 0 0 6px; font-weight: 500;
+    .comic-strip {
+      display: flex; flex-direction: column; padding: 20px 28px;
+      animation: stripIn 0.35s cubic-bezier(0.16,1,0.3,1);
+    }
+    @keyframes stripIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .comic-beagle-row {
+      display: flex; align-items: flex-start; gap: 16px;
+      margin-bottom: 20px;
+    }
+    .comic-beagle {
+      width: 72px; height: 72px; border-radius: 50%;
+      border: 2px solid #A383E6; overflow: hidden;
+      flex-shrink: 0; position: relative;
+      box-shadow: 0 0 24px rgba(163,131,230,0.2);
+      background: #1a1025;
+    }
+    .comic-beagle img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .comic-beagle.tail-wag img {
+      animation: beagleWag 0.4s ease-in-out 3;
+    }
+    /* ── Speech Bubble ── */
+    .speech-bubble {
+      position: relative; flex: 1;
+      background: linear-gradient(135deg, #1f1535 0%, #1a1a2e 100%);
+      border: 1px solid rgba(163,131,230,0.3); border-radius: 16px;
+      padding: 16px 20px; color: #ddd; font-size: 14px; line-height: 1.55;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .speech-bubble::before {
+      content: ''; position: absolute; left: -10px; top: 22px;
+      width: 0; height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-right: 10px solid #1f1535;
+    }
+    .speech-bubble .beagle-name {
+      font-weight: 700; font-size: 12px; color: #A383E6;
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+    }
+    .speech-bubble .beagle-msg {
+      color: #ccc; font-size: 14px;
+    }
+    .speech-bubble .beagle-emoji {
+      display: inline-block; animation: beagleBounce 0.6s ease-in-out;
+    }
+    @keyframes beagleBounce {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    /* ── Form Content (below comic strip) ── */
+    .strip-content {
+      display: flex; flex-direction: column; gap: 16px;
+      padding: 0 0 8px;
+    }
+    .strip-content h4 { color: #FFD700; font-size: 13px; margin: 0 0 4px; font-weight: 500;
       text-transform: uppercase; letter-spacing: 1px; }
+    /* ── Sniffing Loading ── */
+    .wiz-sniffing {
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+      padding: 48px 20px; color: #999; text-align: center;
+    }
+    .wiz-sniffing .sniff-beagle {
+      width: 96px; height: 96px; border-radius: 50%;
+      border: 3px solid #A383E6; overflow: hidden;
+      box-shadow: 0 0 32px rgba(163,131,230,0.3);
+      animation: sniffBob 1.2s ease-in-out infinite;
+    }
+    .wiz-sniffing .sniff-beagle img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    @keyframes sniffBob {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .wiz-sniffing .sniff-text {
+      font-size: 14px; color: #A383E6; font-weight: 500;
+    }
+    .wiz-sniffing .sniff-sub {
+      font-size: 11px; color: #555;
+    }
+    /* ── Bone Confetti ── */
+    .bone-particle {
+      position: fixed; pointer-events: none; z-index: 20000;
+      font-size: 24px; animation: boneFall 2s ease-out forwards;
+    }
+    @keyframes boneFall {
+      0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translateY(400px) rotate(720deg) scale(0.3); }
+    }
+    /* ── Fields (unchanged, kept for compatibility) ── */
     .wiz-field {
       display: flex; flex-direction: column; gap: 6px;
     }
@@ -208,10 +315,10 @@
     }
     .wiz-btn:hover { background: #252525; border-color: #555; }
     .wiz-btn.primary {
-      background: linear-gradient(135deg, #FFD700, #FFC000);
-      color: #111; border-color: #FFD700; font-weight: 600;
+      background: linear-gradient(135deg, #A383E6, #7C5CBF);
+      color: #fff; border-color: #A383E6; font-weight: 600;
     }
-    .wiz-btn.primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .wiz-btn.primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(163,131,230,0.35); }
     .wiz-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
     .wiz-btn.ghost { background: none; border: none; color: #666; }
     .wiz-btn.ghost:hover { color: #fff; background: none; }
@@ -238,7 +345,7 @@
     }
     .wiz-spinner {
       width: 40px; height: 40px; border: 3px solid #222;
-      border-top-color: #FFD700; border-radius: 50%;
+      border-top-color: #A383E6; border-radius: 50%;
       animation: wiz-spin 0.8s linear infinite;
     }
     @keyframes wiz-spin { to { transform: rotate(360deg); } }
@@ -263,7 +370,7 @@
   <button class="btn" onclick="openProjects()">📂 Projects</button>
   <button class="btn" onclick="openTheme()">🎨 Theme</button>
   <button class="btn" onclick="openAI()">🤖 AI</button>
-  <button class="btn" onclick="saveComponent()" style="color:#C084FC;border-color:#C084FC44;">📦 Save Component</button>
+  <button class="btn" onclick="saveAsBlock()" style="color:#C084FC;border-color:#C084FC44;">📦 Save as Block</button>
   <button class="btn" onclick="editor.UndoManager.undo()" title="Undo (Ctrl+Z)">↩️</button>
   <button class="btn" onclick="editor.UndoManager.redo()" title="Redo (Ctrl+Y)">↪️</button>
   <button class="btn success" onclick="saveToServer()">💾 Save</button>
@@ -273,10 +380,46 @@
 
 <div id="gjs"></div>
 
-<script src="https://unpkg.com/grapesjs"></script>
-<script src="https://unpkg.com/grapesjs-preset-webpage"></script>
+<script src="https://unpkg.com/grapesjs@0.21.13"></script>
+<!-- Plugins: style → bg, components → navbar/forms/tabs/tooltip/custom-code, media → image-editor -->
+<script src="https://unpkg.com/grapesjs-style-gradient@3.0.7"></script>
+<script src="https://unpkg.com/grapesjs-style-bg@2.0.40"></script>
+<script src="https://unpkg.com/grapesjs-navbar@0.1.4"></script>
+<script src="https://unpkg.com/grapesjs-tabs@1.0.10"></script>
+<script src="https://unpkg.com/grapesjs-tooltip@0.1.8"></script>
+<script src="https://unpkg.com/grapesjs-plugin-forms@2.0.6"></script>
+<script src="https://unpkg.com/grapesjs-custom-code@1.0.2"></script>
+<script src="https://unpkg.com/grapesjs-tui-image-editor@0.2.3"></script>
+<!-- Wave 2: style-filter, basic blocks, typed, countdown, flexbox, zoom, user-blocks -->
+<script src="https://unpkg.com/grapesjs-style-filter@1.0.4"></script>
+<script src="https://unpkg.com/grapesjs-blocks-basic@1.0.3"></script>
+<script src="https://unpkg.com/grapesjs-typed@1.0.7"></script>
+<script src="https://unpkg.com/grapesjs-component-countdown@1.0.8"></script>
+<script src="https://unpkg.com/grapesjs-blocks-flexbox@0.1.3"></script>
+<script src="https://unpkg.com/grapesjs-zoom-plugin@0.1.1"></script>
+<script src="https://unpkg.com/grapesjs-user-blocks@1.0.0"></script>
 
 <script>
+/* ══════════════════════════════════════════════════════════════
+   VERSION GUARD — auto-clear stale cache on deploy
+   Bump BUILDER_VERSION to force browser to flush old data
+   ══════════════════════════════════════════════════════════════ */
+const BUILDER_VERSION = '20260607v3';
+(function(){
+  try {
+    var v = localStorage.getItem('_bb_ver');
+    if (v !== BUILDER_VERSION) {
+      // Flush everything GrapesJS/WebBeagle
+      var keys = [];
+      for (var i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
+      keys.forEach(function(k) {
+        if (/^(gjs|webbeagle|_bb_)/.test(k)) localStorage.removeItem(k);
+      });
+      localStorage.setItem('_bb_ver', BUILDER_VERSION);
+    }
+  } catch(e) { /* noop — incognito / disabled storage */ }
+})();
+
 /* ══════════════════════════════════════════════════════════════
    WEB BEAGLE THEME — Pixel-Perfect Original CSS
    Gold Gloss · Glass Panels · Animated Mesh · Scroll Reveal
@@ -608,6 +751,51 @@ footer.wb-footer{
   .stat+.stat{border-left:none;border-top:1px solid rgba(255,255,255,.07);padding-top:16px}
   section.wb-section{padding:60px 24px}
 }
+
+/* Testimonial cards */
+.testimonials-grid {
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:20px;max-width:1000px;margin:0 auto;
+}
+.testimonial-card {
+  border-radius:12px;padding:24px;
+  background:linear-gradient(180deg,#1A1A1A 0%,#222 100%);
+  border:1px solid rgba(255,255,255,.06);
+}
+.testimonial-quote {font-size:32px;margin-bottom:12px;}
+.testimonial-quote.c-purple {color:#A383E6;}
+.testimonial-quote.c-gold {color:#F8B133;}
+.testimonial-quote.c-teal {color:#20C997;}
+.testimonial-text {font-size:15px;color:#E0E0E0;line-height:1.6;margin-bottom:20px;}
+.testimonial-author {display:flex;align-items:center;gap:10px;}
+.testimonial-avatar {
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:#fff;
+  font-family:var(--font-heading);
+}
+.testimonial-avatar.bg-purple {background:#6A4C93;}
+.testimonial-avatar.bg-gold {background:#F8B133;color:#0a0a0a;}
+.testimonial-avatar.bg-teal {background:#20C997;}
+.testimonial-name {font-size:13px;font-weight:700;color:#fff;font-family:var(--font-heading);}
+.testimonial-role {font-size:11px;color:#A0A0A0;}
+.testimonial-heading {color:#F8B133;font-weight:800;}
+
+/* Service icon color variants */
+.svc-icon.c-purple {background:rgba(163,131,230,.15);}
+.svc-icon.c-green {background:rgba(16,185,129,.15);}
+.svc-icon.c-orange {background:rgba(245,158,11,.15);}
+
+/* How-it-works section styling */
+#how-it-works {
+  background:rgba(255,255,255,.015);
+  border-top:1px solid rgba(255,255,255,.04);
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+
+/* Footer text helpers */
+.footer-brand-name {font-family:var(--font-heading);font-weight:800;font-size:16px;color:#fff;}
+.footer-email {font-size:12px;color:#4b5563;}
 `;
 
 /* ══════════════════════════════════════════════════════════════
@@ -714,19 +902,19 @@ const BLOCKS = {
   </div>
   <div class="services-grid">
     <div class="svc-card reveal r2">
-      <div class="svc-icon" style="background:rgba(163,131,230,.15)">🎨</div>
+      <div class="svc-icon c-purple">🎨</div>
       <h3>Website Design</h3>
       <p>Custom WordPress design tailored to your brand. Built with professional templates and refined to pixel-perfection.</p>
       <span class="svc-price">Starting at $499 one-time</span>
     </div>
     <div class="svc-card reveal r3">
-      <div class="svc-icon" style="background:rgba(16,185,129,.15)">🛡️</div>
+      <div class="svc-icon c-green">🛡️</div>
       <h3>Managed Hosting</h3>
       <p>We host, update, secure, and maintain your site every month. You never touch a dashboard unless you want to.</p>
       <span class="svc-price">$99/month</span>
     </div>
     <div class="svc-card reveal r4">
-      <div class="svc-icon" style="background:rgba(245,158,11,.15)">⚡</div>
+      <div class="svc-icon c-orange">⚡</div>
       <h3>On-Demand Updates</h3>
       <p>Point at anything on your site and tell us what to change. We handle it fast — usually within 24 hours.</p>
       <span class="svc-price">Included</span>
@@ -740,7 +928,7 @@ const BLOCKS = {
     label: '📋 How It Works',
     category: '🧩 Sections',
     icon: '📋',
-    html: `<section class="wb-section" id="how-it-works" style="background:rgba(255,255,255,.015);border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04);">
+    html: `<section class="wb-section" id="how-it-works">
   <div class="section-header reveal r1">
     <div class="section-badge"><span class="sdot"></span><span>The Process</span></div>
     <h2>Up and Running in <span class="gold-gloss">3 Steps</span></h2>
@@ -772,42 +960,42 @@ const BLOCKS = {
     category: '🧩 Sections',
     icon: '💬',
     html: `<section class="wb-section" id="testimonials">
-  <div class="section-header reveal r1">
+  <div class="section-header reveal r1 visible">
     <div class="section-badge"><span class="sdot"></span><span>Social Proof</span></div>
-    <h2 class="gold-gloss">What Clients Say</h2>
+    <h2 class="testimonial-heading">What Clients Say</h2>
     <p>Small businesses love working with us.</p>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;max-width:1000px;margin:0 auto;">
-    <div class="glass reveal r1" style="border-radius:24px;padding:28px;">
-      <div style="font-size:32px;color:var(--accent);margin-bottom:12px;">"</div>
-      <p style="font-size:14px;color:#d4d4d8;line-height:1.7;margin-bottom:20px;">WebBeagle delivered our site in 48 hours and it looked better than anything our previous agency produced in 3 months. Absolutely elite work.</p>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--primary));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;font-family:var(--font-heading);">S</div>
+  <div class="testimonials-grid">
+    <div class="reveal r1 visible testimonial-card">
+      <div class="testimonial-quote c-purple">&quot;</div>
+      <p class="testimonial-text">WebBeagle delivered our site in 48 hours and it looked better than anything our previous agency produced in 3 months. Absolutely elite work.</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar bg-purple">S</div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:#fff;font-family:var(--font-heading);">Sarah Mitchell</div>
-          <div style="font-size:11px;color:#6b7280;">CEO, Bloom Wellness Co.</div>
+          <div class="testimonial-name">Sarah Mitchell</div>
+          <div class="testimonial-role">CEO, Bloom Wellness Co.</div>
         </div>
       </div>
     </div>
-    <div class="glass reveal r2" style="border-radius:24px;padding:28px;">
-      <div style="font-size:32px;color:#FFD500;margin-bottom:12px;">"</div>
-      <p style="font-size:14px;color:#d4d4d8;line-height:1.7;margin-bottom:20px;">I was skeptical about the 48-hour promise. Now I send every client their way. The process is smooth, the quality is consistent, and the ROI is real.</p>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FFD500,#f5a14c);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#0a0a0a;font-family:var(--font-heading);">R</div>
+    <div class="reveal r2 visible testimonial-card">
+      <div class="testimonial-quote c-gold">&quot;</div>
+      <p class="testimonial-text">I was skeptical about the 48-hour promise. Now I send every client their way. The process is smooth, the quality is consistent, and the ROI is real.</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar bg-gold">R</div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:#fff;font-family:var(--font-heading);">Ryan Okafor</div>
-          <div style="font-size:11px;color:#6b7280;">Marketing Director, Finova Capital</div>
+          <div class="testimonial-name">Ryan Okafor</div>
+          <div class="testimonial-role">Marketing Director, Finova Capital</div>
         </div>
       </div>
     </div>
-    <div class="glass reveal r3" style="border-radius:24px;padding:28px;">
-      <div style="font-size:32px;color:#10b981;margin-bottom:12px;">"</div>
-      <p style="font-size:14px;color:#d4d4d8;line-height:1.7;margin-bottom:20px;">Booked 14 discovery calls in the first week after launch. The site just converts. If you're on the fence, just do it.</p>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#0ea5e9);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;font-family:var(--font-heading);">J</div>
+    <div class="reveal r3 visible testimonial-card">
+      <div class="testimonial-quote c-teal">&quot;</div>
+      <p class="testimonial-text">Booked 14 discovery calls in the first week after launch. The site just converts. If you're on the fence, just do it.</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar bg-teal">J</div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:#fff;font-family:var(--font-heading);">Jamie Torres</div>
-          <div style="font-size:11px;color:#6b7280;">Founder, Torres Consulting</div>
+          <div class="testimonial-name">Jamie Torres</div>
+          <div class="testimonial-role">Founder, Torres Consulting</div>
         </div>
       </div>
     </div>
@@ -838,7 +1026,7 @@ const BLOCKS = {
       <div>
         <div class="footer-brand">
           <span class="footer-brand-icon">🐾</span>
-          <span style="font-family:var(--font-heading);font-weight:800;font-size:16px;color:#fff;">WebBeagle</span>
+          <span class="footer-brand-name">WebBeagle</span>
         </div>
         <p class="footer-tag">Managed WordPress websites for small businesses. Beautiful design. Flat monthly rate. No contracts.</p>
       </div>
@@ -859,7 +1047,7 @@ const BLOCKS = {
     </div>
     <div class="footer-bottom">
       <span class="footer-copy">&copy; 2026 WebBeagle — Digital Blandishment LLC</span>
-      <span style="font-size:12px;color:#4b5563;">hello@webbeagle.com</span>
+      <span class="footer-email">hello@webbeagle.com</span>
       <span class="footer-built">Built with SiteForge &amp; GrapesJS &#x26a1;</span>
     </div>
   </div>
@@ -937,6 +1125,9 @@ const FULL_PAGE = `
   ${BLOCKS['footer'].html}
 `;
 
+// Expose the pristine template globally so save functions can access it
+window.FULL_PAGE_TEMPLATE = FULL_PAGE;
+
 const SECTIONS_ONLY = `
   ${BLOCKS['mesh-bg'].html}
   ${BLOCKS['hero'].html}
@@ -950,20 +1141,53 @@ const SECTIONS_ONLY = `
    GRAPESJS INIT
    ══════════════════════════════════════════════════════════════ */
 
+// Prevent GrapesJS from ever loading stale localStorage data
+try { localStorage.removeItem('gjsProject'); } catch(e) {}
+
 var editor = grapesjs.init({
   container: '#gjs',
   height: '100%',
   fromElement: false,
   storageManager: { type: 'local', autosave: true, autoload: false, stepsBeforeSave: 1 },
-  plugins: ['gjs-preset-webpage'],
-  pluginsOpts: {
-    'gjs-preset-webpage': {
-      blocks: ['link-block', 'quote', 'text-basic'],
-      useCustomTheme: false
-    }
+  canvas: {
+    styles: ['/theme.css'],
+    scripts: ['/interactivity.js']
   },
-  canvas: { styles: [], scripts: [] },
-  blockManager: { blocks: [] }
+  plugins: [
+    'grapesjs-style-gradient',
+    'grapesjs-style-bg',
+    'grapesjs-navbar',
+    'grapesjs-tabs',
+    'grapesjs-tooltip',
+    'grapesjs-plugin-forms',
+    'grapesjs-custom-code',
+    'grapesjs-tui-image-editor',
+    'grapesjs-style-filter',
+    window['gjs-blocks-basic'],
+    'grapesjs-typed',
+    'grapesjs-component-countdown',
+    'grapesjs-blocks-flexbox',
+    'grapesjs-zoom-plugin',
+    'grapesjs-user-blocks'
+  ],
+  pluginsOpts: {
+    'grapesjs-navbar': {
+      id: 'plugin-navbar',
+      label: 'Navbar (Plugin)',
+      block: { category: 'Layout' }
+    },
+    'grapesjs-style-bg': {
+      styleGradientOpts: {}
+    },
+    'grapesjs-custom-code': {
+      modalTitle: 'Insert Custom Code',
+      buttonLabel: 'Save Code'
+    },
+    'grapesjs-tui-image-editor': {
+      labelImageEditor: 'Edit Image',
+      addToAssets: true
+    }
+  }
 });
 
 /* ── Register all component blocks ───────────────────────────── */
@@ -1028,6 +1252,27 @@ editor.on('load', function() {
     media: '<svg viewBox="0 0 24 24" width="40" height="40"><rect width="24" height="24" rx="6" fill="#111"/><line x1="0" y1="3" x2="24" y2="3" stroke="rgba(255,255,255,0.06)"/><rect x="2" y="7" width="8" height="11" rx="2" fill="rgba(255,255,255,0.03)"/><rect x="12" y="7" width="5" height="11" rx="2" fill="rgba(255,255,255,0.03)"/><rect x="19" y="7" width="3" height="11" rx="2" fill="rgba(255,255,255,0.03)"/></svg>'
   });
   });
+
+/* ── Auto-section wrapper: wrap dropped components in <section> ── */
+editor.on('component:add', function(component) {
+  if (component.__sectionWrapped) return;
+  var parent = component.parent();
+  if (!parent) return;
+  var tag = (component.get('tagName') || '').toLowerCase();
+  var classStr = '';
+  var cl = component.get('classes');
+  if (cl && cl.models) { cl.models.forEach(function(m) { classStr += ' ' + (m.get('name')||''); }); }
+  // Skip semantic tags, pre-wrapped sections, and layout wrappers
+  if (tag === 'section' || tag === 'body' || tag === 'header' || tag === 'footer' || tag === 'nav' || tag === 'main') return;
+  if (classStr.indexOf('mesh-bg') >= 0 || classStr.indexOf('hero-wrap') >= 0) return;
+  var parentTag = (parent.get('tagName') || '').toLowerCase();
+  if (parentTag === 'body') {
+    component.__sectionWrapped = true;
+    var html = component.toHTML();
+    component.remove();
+    editor.addComponents('<section class="wb-section">' + html + '</section>');
+  }
+});
 
 
 /* ── Inject theme CSS into GrapesJS canvas iframe ─────────────── */
@@ -1180,6 +1425,15 @@ function loadProject(id) {
     document.getElementById('project-select').value = id;
     if (data.theme_css) { currentThemeCss = data.theme_css; applyThemeSilent(currentThemeCss); }
     setStatus('Loaded: ' + data.name, true);
+    // Make reveal elements visible in canvas
+    setTimeout(function() {
+      var canvasDoc = editor.Canvas.getDocument();
+      if (canvasDoc) {
+        canvasDoc.querySelectorAll(".reveal").forEach(function(el) {
+          el.classList.add("visible");
+        });
+      }
+    }, 400);
   });
 }
 
@@ -1203,7 +1457,25 @@ function switchPage(pageId) {
 }
 
 function addNewPage() {
-  if (!currentProjectId) { alert('Create or select a project first'); return; }
+  if (!currentProjectId) {
+    // Auto-create project first, then add page
+    var autoName = 'WebBeagle Homepage ' + new Date().toISOString().substring(0, 10);
+    api('POST', '/api/projects', { name: autoName, theme_css: currentThemeCss }).then(function(data) {
+      if (data.error) { alert(data.error); return; }
+      currentProjectId = data.id;
+      currentPageId = 'home';
+      refreshProjectList();
+      // Now prompt for page name
+      var name = prompt('Page name (e.g., contact, about):');
+      if (!name) return;
+      api('POST', '/api/projects/' + currentProjectId + '/pages', { name: name }).then(function(d2) {
+        if (d2.error) { alert(d2.error); return; }
+        switchPage(d2.page_id);
+        setStatus('Page added: ' + name, true);
+      });
+    });
+    return;
+  }
   var name = prompt('Page name (e.g., contact, about):');
   if (!name) return;
   api('POST', '/api/projects/' + currentProjectId + '/pages', { name: name }).then(function(data) {
@@ -1217,22 +1489,41 @@ function saveCurrentPageSilent() {
   return new Promise(function(resolve) {
     if (!currentProjectId) { resolve(); return; }
     try {
-      var html = editor.getHtml();
-      var css = editor.getCss();
+      var components = editor.getComponents();
+      var css = editor.getStyle();
       api('PUT', '/api/projects/' + currentProjectId, {
-        page_id: currentPageId, components: html, styles: css
+        pages_data: { [currentPageId]: { components: components, styles: css } }
       }).then(function() { resolve(); }).catch(function() { resolve(); });
     } catch(e) { resolve(); }
   });
 }
 
 function saveToServer() {
-  if (!currentProjectId) { alert('Create or select a project first'); return; }
+  if (!currentProjectId) {
+    // Auto-create a project from the current canvas content
+    var autoName = 'WebBeagle Homepage ' + new Date().toISOString().substring(0, 10);
+    api('POST', '/api/projects', { name: autoName, theme_css: currentThemeCss }).then(function(data) {
+      if (data.error) { setStatus('Error: ' + data.error); return; }
+      currentProjectId = data.id;
+      currentPageId = 'home';
+      try {
+        var components = editor.getComponents();
+        var css = editor.getStyle();
+        api('PUT', '/api/projects/' + currentProjectId, {
+          pages_data: { [currentPageId]: { components: components, styles: css } }
+        }).then(function(d2) {
+          refreshProjectList();
+          setStatus('Project auto-created & saved! ✓', true);
+        });
+      } catch(e) { setStatus('Save failed: ' + e.message); }
+    });
+    return;
+  }
   try {
-    var html = editor.getHtml();
-    var css = editor.getCss();
+    var components = editor.getComponents();
+    var css = editor.getStyle();
     api('PUT', '/api/projects/' + currentProjectId, {
-      page_id: currentPageId, components: html, styles: css
+      pages_data: { [currentPageId]: { components: components, styles: css } }
     }).then(function(data) {
       if (data.error) { setStatus('Error: ' + data.error); return; }
       setStatus('Saved! ✓', true);
@@ -1241,7 +1532,27 @@ function saveToServer() {
 }
 
 function publishProject() {
-  if (!currentProjectId) { alert('Create or select a project first'); return; }
+  if (!currentProjectId) {
+    // Auto-create project first, then publish
+    var autoName = 'WebBeagle Homepage ' + new Date().toISOString().substring(0, 10);
+    api('POST', '/api/projects', { name: autoName, theme_css: currentThemeCss }).then(function(data) {
+      if (data.error) { setStatus('Error: ' + data.error); return; }
+      currentProjectId = data.id;
+      currentPageId = 'home';
+      try {
+        var components = editor.getComponents();
+        var css = editor.getStyle();
+        api('PUT', '/api/projects/' + currentProjectId, {
+          pages_data: { [currentPageId]: { components: components, styles: css } }
+        }).then(function(d2) {
+          refreshProjectList();
+          var url = 'https://' + currentProjectId + '.preview.webbeagle.com/';
+          setStatus('Published at ' + url, true);
+        });
+      } catch(e) { setStatus('Publish failed: ' + e.message); }
+    });
+    return;
+  }
   saveToServer();
   var url = 'https://' + currentProjectId + '.preview.webbeagle.com/';
   setStatus('Published at ' + url, true);
@@ -1534,7 +1845,38 @@ function aiGenerate() {
 /* ══════════════════════════════════════════════════════════════
    COMPONENT LIBRARY
    ══════════════════════════════════════════════════════════════ */
-function saveComponent() {
+/* ── User Blocks: Save selected component as reusable block ─────── */
+function saveAsBlock() {
+  var selected = editor.getSelected();
+  if (!selected) { alert('Select an element on the canvas first, then click Save as Block.'); return; }
+
+  var name = prompt('Block name (e.g. "Blue Hero Section"):', '');
+  if (!name || !name.trim()) return;
+
+  var category = prompt('Category (e.g. "My Blocks", "Headers"):', 'My Blocks');
+  if (!category || !category.trim()) category = 'My Blocks';
+
+  var html = selected.toHTML();
+  var css = editor.CodeManager.getCode(selected, 'css', { cssc: editor.CssComposer });
+
+  // Combine into block content with inline style
+  var content = html;
+  if (css && css.trim()) {
+    content = '<style>' + css + '</style>\n' + html;
+  }
+
+  // Add to Block Manager so it appears in the blocks panel immediately
+  editor.BlockManager.add('ub-' + Date.now().toString(36), {
+    label: name.trim(),
+    category: category.trim(),
+    content: content
+  });
+
+  alert('✓ Block "' + name.trim() + '" saved to category "' + category.trim() + '"');
+}
+
+/* ── Legacy save component (kept for reference) ──────────────────── */
+function saveComponent_legacy() {
   var selected = editor.getSelected();
   if (!selected) { alert('Select a component in the canvas first.'); return; }
   var name = prompt('Component name:');
@@ -1564,7 +1906,7 @@ function doSaveComponent(name, html, thumbnail) {
   });
 }
 
-function registerComponentBlock(id, name, html, thumbnailDataUrl) {
+function registerComponentBlock(id, name, html, thumbnailDataUrl, category) {
   var bm = editor.BlockManager;
   var mediaHtml;
   if (thumbnailDataUrl) {
@@ -1577,15 +1919,31 @@ function registerComponentBlock(id, name, html, thumbnailDataUrl) {
   }
   var existing = bm.get(id);
   if (existing) bm.remove(id);
-  bm.add(id, { label: name, category: '📦 My Components', content: html, media: mediaHtml });
+  bm.add(id, { label: name, category: category || '📦 My Components', content: html, media: mediaHtml });
 }
 
 function loadComponentLibrary() {
   api('GET', '/api/components').then(function(data) {
     if (!data || !data.components) return;
+    window.__COMP_MAP = window.__COMP_MAP || {};
+    var loadedCss = [];
     data.components.forEach(function(c) {
-      registerComponentBlock(c.id, c.name, c.html, c.thumbnail);
+      var category = c.category || '📦 Components';
+      var catLabel = category.charAt(0).toUpperCase() + category.slice(1);
+      registerComponentBlock(c.id, c.name, c.html, c.thumbnail, catLabel);
+      window.__COMP_MAP[c.name] = { id: c.id, html: c.html, css: c.css || '' };
+      if (c.css) loadedCss.push('/* ' + c.name + ' */\n' + c.css);
     });
+    if (loadedCss.length > 0) {
+      var canvasDoc = editor.Canvas.getDocument();
+      if (canvasDoc) {
+        var styleEl = canvasDoc.createElement('style');
+        styleEl.setAttribute('data-source', 'components');
+        styleEl.textContent = loadedCss.join('\n');
+        canvasDoc.head.appendChild(styleEl);
+      }
+    }
+    setStatus('📦 ' + data.components.length + ' components loaded');
   });
 }
 
@@ -1604,19 +1962,6 @@ function clearProject() {
 function saveProject() {
   localStorage.setItem('webbeagle-project-v2', JSON.stringify(editor.getProjectData()));
   setStatus('Saved! ✓', true);
-}
-function loadProject() {
-  var raw = localStorage.getItem('webbeagle-project-v2');
-  if (!raw) { setStatus('No saved project found ✗'); return; }
-  editor.loadProjectData(JSON.parse(raw));
-  setStatus('Project loaded! ✓');
-}
-function clearProject() {
-  if (confirm('Clear the entire canvas?')) {
-    editor.setComponents('');
-    editor.setStyle('');
-    setStatus('Canvas cleared');
-  }
 }
 function setStatus(msg, isSaved) {
   var el = document.getElementById('status');
@@ -1653,11 +1998,131 @@ document.addEventListener('keydown', function(e) {
   if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveProject(); }
 });
 
+/* ══════════════════════════════════════════════════════════════
+   COMPONENT PREVIEW — Full-canvas overlay, drag-to-dismiss
+   ALL components get preview. Live iframe renders actual HTML+CSS.
+   ══════════════════════════════════════════════════════════════ */
+(function initBlockPreviews() {
+  var overlay = document.createElement('div');
+  overlay.id = 'canvas-preview-overlay';
+  overlay.style.cssText = 'display:none;position:fixed;z-index:9999999;pointer-events:none;'
+    + 'background:rgba(0,0,0,0.85);'
+    + 'opacity:0;transition:opacity 0.12s ease;';
+  document.body.appendChild(overlay);
+
+  var previewIframe = document.createElement('iframe');
+  previewIframe.id = 'canvas-preview-iframe';
+  previewIframe.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);'
+    + 'width:90%;height:85%;'
+    + 'border:none;background:#0a0a0f;border-radius:6px;'
+    + 'box-shadow:0 8px 48px rgba(0,0,0,0.6);';
+  previewIframe.setAttribute('sandbox', 'allow-same-origin');
+  overlay.appendChild(previewIframe);
+
+  var previewLabel = document.createElement('div');
+  previewLabel.id = 'canvas-preview-label';
+  previewLabel.style.cssText = 'position:absolute;top:16px;left:50%;transform:translateX(-50%);'
+    + 'font-size:11px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:2px;'
+    + 'pointer-events:none;z-index:1;';
+  overlay.appendChild(previewLabel);
+
+  function getBlockCategory(block) {
+    var cat = block.closest('.gjs-block-category');
+    if (!cat) return '';
+    var title = cat.querySelector('.gjs-title');
+    return title ? title.textContent.trim() : '';
+  }
+
+  function positionOverlay() {
+    var cv = document.querySelector('.gjs-cv-canvas');
+    if (!cv) return;
+    var r = cv.getBoundingClientRect();
+    overlay.style.top = r.top + 'px';
+    overlay.style.left = r.left + 'px';
+    overlay.style.width = r.width + 'px';
+    overlay.style.height = r.height + 'px';
+  }
+
+  function showPreview(block) {
+    var name = block.getAttribute('title') || '';
+    var comp = window.__COMP_MAP && window.__COMP_MAP[name];
+    if (!comp) {
+      var img = block.querySelector('img');
+      if (img && img.src) showStaticFallback(img.src, getBlockCategory(block));
+      return;
+    }
+    positionOverlay();
+    var cat = getBlockCategory(block);
+    previewLabel.textContent = cat || '';
+    var themeCss = (typeof currentThemeCss !== 'undefined' ? currentThemeCss : '');
+    var docContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>'
+      + 'html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;'
+      + 'display:flex;align-items:center;justify-content:center;'
+      + 'background:#0a0a0f;font-family:Inter,system-ui,sans-serif;}'
+      + 'body>*{max-width:100%;max-height:100%;}'
+      + themeCss + '\n' + comp.css
+      + '</style></head><body>' + comp.html + '</body></html>';
+    previewIframe.srcdoc = docContent;
+    overlay.style.display = 'block';
+    overlay.style.pointerEvents = 'none';
+    requestAnimationFrame(function() { overlay.style.opacity = '1'; });
+  }
+
+  function showStaticFallback(imgSrc, cat) {
+    var fbImg = document.createElement('img');
+    fbImg.id = 'canvas-preview-fb';
+    fbImg.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);'
+      + 'width:90%;height:85%;border-radius:6px;'
+      + 'box-shadow:0 8px 48px rgba(0,0,0,0.6);object-fit:contain;';
+    fbImg.src = imgSrc;
+    overlay.appendChild(fbImg);
+    overlay.style.display = 'block';
+    overlay.style.pointerEvents = 'none';
+    previewLabel.textContent = cat || '';
+    requestAnimationFrame(function() { overlay.style.opacity = '1'; });
+  }
+
+  function hidePreview() {
+    overlay.style.opacity = '0';
+    previewIframe.srcdoc = '';
+    var fb = document.getElementById('canvas-preview-fb');
+    if (fb) fb.remove();
+    setTimeout(function() {
+      if (overlay.style.opacity === '0') overlay.style.display = 'none';
+    }, 150);
+  }
+
+  function bindBlock(block) {
+    if (block.__previewBound) return;
+    block.__previewBound = true;
+    block.addEventListener('mouseenter', function() { showPreview(block); });
+    block.addEventListener('mouseleave', function() { hidePreview(); });
+    block.addEventListener('mousedown', function() { hidePreview(); });
+  }
+
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      m.addedNodes.forEach(function(node) {
+        if (node.nodeType !== 1) return;
+        if (node.classList && node.classList.contains('gjs-block')) bindBlock(node);
+        if (node.querySelectorAll) {
+          node.querySelectorAll('.gjs-block').forEach(bindBlock);
+        }
+      });
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  document.querySelectorAll('.gjs-block').forEach(bindBlock);
+  window.addEventListener('resize', function() {
+    if (overlay.style.display !== 'none') positionOverlay();
+  });
+})();
+
 /* ── Auto-load full homepage on first visit ─────────────────── */
-(function() {
+editor.on('load', function() {
   setTimeout(function() {
     if (!currentProjectId) {
-      editor.addComponents(FULL_PAGE);
+      editor.setComponents(FULL_PAGE);
       // Make reveal elements visible (no IntersectionObserver in canvas)
       setTimeout(function() {
         var canvasDoc = editor.Canvas.getDocument();
@@ -1666,11 +2131,11 @@ document.addEventListener('keydown', function(e) {
             el.classList.add("visible");
           });
         }
-      }, 200);
+      }, 300);
       setStatus('🐾 Full homepage loaded! Drag blocks to customize');
     }
-  }, 800);
-})();
+  }, 500);
+});
 </script>
 
 
@@ -1748,23 +2213,41 @@ document.addEventListener('keydown', function(e) {
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
-     ONBOARDING WIZARD MODAL
+     ONBOARDING WIZARD MODAL — WEB BEAGLE BRANDED
      ═══════════════════════════════════════════════════════════ -->
 <div class="wizard-overlay" id="wizard-overlay">
+  <audio id="wiz-stinger" src="/assets/wizard-stinger.mp3" preload="auto"></audio>
   <div class="wizard-panel">
     <div class="wizard-header">
-      <div class="wiz-icon">✨</div>
-      <div>
-        <h2>New Project — Guided Setup</h2>
-        <div class="wiz-sub">Lock in your design DNA. What you specify here stays locked forever.</div>
+      <div class="wiz-beagle" id="wiz-beagle-header">
+        <img src="/assets/mascot/guide.jpg" alt="WebBeagle" id="wiz-beagle-img">
+      </div>
+      <div style="flex:1;">
+        <div style="margin-bottom:4px;">
+          <img src="/assets/webbeagle-logo-horizontal.jpg" alt="WebBeagle" style="height:28px;display:block;">
+        </div>
+        <h2 style="margin:0;">New Project — Guided Setup</h2>
+        <div class="wiz-sub">I'll walk you through every step. Let's build something amazing! 🐾</div>
       </div>
     </div>
 
     <div class="wizard-steps">
-      <div class="wstep active" data-step="1"><span class="step-num">1</span> Info</div>
-      <div class="wstep" data-step="2"><span class="step-num">2</span> Brand</div>
-      <div class="wstep" data-step="3"><span class="step-num">3</span> Inspiration</div>
-      <div class="wstep" data-step="4"><span class="step-num">4</span> Review</div>
+      <div class="wstep active" data-step="1">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.5 2 5 4 3 6l1 2c2-1.5 5-3 8-3s6 1.5 8 3l1-2c-2-2-5.5-4-9-4zm-7 6l1 2c1.5-1 4-2.5 6-2.5s4.5 1.5 6 2.5l1-2c-1.5-1.5-4-3-7-3s-5.5 1.5-7 3zm4 5c0-.6.4-1 1-1s1 .4 1 1-.4 1-1 1-1-.4-1-1zm-2 0c0 1.7 1.3 3 3 3s3-1.3 3-3-1.3-3-3-3-3 1.3-3 3z"/></svg>
+        Info
+      </div>
+      <div class="wstep" data-step="2">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.5 2 5 4 3 6l1 2c2-1.5 5-3 8-3s6 1.5 8 3l1-2c-2-2-5.5-4-9-4zm-7 6l1 2c1.5-1 4-2.5 6-2.5s4.5 1.5 6 2.5l1-2c-1.5-1.5-4-3-7-3s-5.5 1.5-7 3zm4 5c0-.6.4-1 1-1s1 .4 1 1-.4 1-1 1-1-.4-1-1zm-2 0c0 1.7 1.3 3 3 3s3-1.3 3-3-1.3-3-3-3-3 1.3-3 3z"/></svg>
+        Brand
+      </div>
+      <div class="wstep" data-step="3">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.5 2 5 4 3 6l1 2c2-1.5 5-3 8-3s6 1.5 8 3l1-2c-2-2-5.5-4-9-4zm-7 6l1 2c1.5-1 4-2.5 6-2.5s4.5 1.5 6 2.5l1-2c-1.5-1.5-4-3-7-3s-5.5 1.5-7 3zm4 5c0-.6.4-1 1-1s1 .4 1 1-.4 1-1 1-1-.4-1-1zm-2 0c0 1.7 1.3 3 3 3s3-1.3 3-3-1.3-3-3-3-3 1.3-3 3z"/></svg>
+        Inspiration
+      </div>
+      <div class="wstep" data-step="4">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.5 2 5 4 3 6l1 2c2-1.5 5-3 8-3s6 1.5 8 3l1-2c-2-2-5.5-4-9-4zm-7 6l1 2c1.5-1 4-2.5 6-2.5s4.5 1.5 6 2.5l1-2c-1.5-1.5-4-3-7-3s-5.5 1.5-7 3zm4 5c0-.6.4-1 1-1s1 .4 1 1-.4 1-1 1-1-.4-1-1zm-2 0c0 1.7 1.3 3 3 3s3-1.3 3-3-1.3-3-3-3-3 1.3-3 3z"/></svg>
+        Review
+      </div>
     </div>
 
     <div class="wizard-body" id="wizard-body"></div>
@@ -1803,6 +2286,9 @@ function openWizard() {
     uploadedImages: [], selectedConcept: null, conceptTaskIds: [] };
   document.getElementById('wizard-overlay').classList.add('open');
   renderWizStep();
+  // Play the stinger!
+  var stinger = document.getElementById('wiz-stinger');
+  if (stinger) { stinger.currentTime = 0; stinger.play().catch(function(){}); }
 }
 function closeWizard() { document.getElementById('wizard-overlay').classList.remove('open'); }
 
@@ -1812,6 +2298,50 @@ function wizNext() {
   wizStep++; renderWizStep();
 }
 function wizPrev() { if (wizStep > 1) { wizStep--; renderWizStep(); } }
+
+/* ── Beagle Branding Helpers ── */
+function getBeaglePose(step) {
+  if (step === 4) return '/assets/mascot/celebrator.jpg';
+  if (step === 3) return '/assets/mascot/thinker.jpg';
+  return '/assets/mascot/guide.jpg';
+}
+function getBeagleMsg(step) {
+  if (step === 1) return '<span class="beagle-emoji">🐾</span> Woof! Let\'s build something amazing. First, tell me about your project!';
+  if (step === 2) return '<span class="beagle-emoji">🎨</span> Great choices! Now let\'s dress it up. What colors and fonts feel right?';
+  if (step === 3) return '<span class="beagle-emoji">🔍</span> Show me what you love! I\'ll sniff out the best design patterns for you.';
+  if (step === 4) return '<span class="beagle-emoji">🎉</span> Almost there! One last look, then I\'ll fetch your site. You\'re gonna love it!';
+  return '';
+}
+function updateBeaglePose() {
+  // Update header beagle
+  var headerBeagle = document.getElementById('wiz-beagle-img');
+  if (headerBeagle) {
+    headerBeagle.src = getBeaglePose(wizStep);
+  }
+  // Wag tail on the comic strip beagle
+  var comicBeagle = document.getElementById('comic-beagle-img');
+  if (comicBeagle) {
+    comicBeagle.classList.add('tail-wag');
+    setTimeout(function() { comicBeagle.classList.remove('tail-wag'); }, 1200);
+  }
+}
+function showBoneConfetti() {
+  var bones = ['🦴','🐾','✨','🎉','⭐','💜'];
+  for (var i = 0; i < 20; i++) {
+    setTimeout(function() {
+      var p = document.createElement('div');
+      p.className = 'bone-particle';
+      p.textContent = bones[Math.floor(Math.random() * bones.length)];
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top = -(Math.random() * 100) + 'px';
+      p.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      p.style.fontSize = (18 + Math.random() * 20) + 'px';
+      p.style.animationDelay = '0s';
+      document.body.appendChild(p);
+      setTimeout(function() { p.remove(); }, 3000);
+    }, i * 60);
+  }
+}
 
 function updateNavButtons() {
   document.getElementById('wiz-back-btn').style.display = wizStep > 1 ? '' : 'none';
@@ -1828,6 +2358,7 @@ function setStepUI() {
     else if (s < wizStep) el.classList.add('done');
   });
   updateNavButtons();
+  updateBeaglePose();
 }
 
 /* ── Sync step 1 data before moving on ── */
@@ -1868,7 +2399,16 @@ function renderWizStep() {
   if (wizStep > 1) { syncStep1(); syncStep2(); syncStep3(); }
 
   var body = document.getElementById('wizard-body');
+  var beaglePose = getBeaglePose(wizStep);
+  var beagleMsg = getBeagleMsg(wizStep);
   var h = '';
+
+  h += '<div class="comic-strip">';
+  h += '<div class="comic-beagle-row">';
+  h += '<div class="comic-beagle" id="comic-beagle-img"><img src="' + beaglePose + '" alt="WebBeagle"></div>';
+  h += '<div class="speech-bubble"><div class="beagle-name">WebBeagle</div><div class="beagle-msg">' + beagleMsg + '</div></div>';
+  h += '</div>';
+  h += '<div class="strip-content">';
 
   if (wizStep === 1) {
     h += '<h4>📋 Project Information</h4>';
@@ -1929,19 +2469,16 @@ function renderWizStep() {
     h += '<p style="color:#666;font-size:11px;margin:0 0 12px;">Generate 3 above-the-fold concept images based on your brand colors and fonts. Pick one as your design reference.</p>';
 
     if (wizData.selectedConcept) {
-      // Show selected concept
       h += '<div style="text-align:center;">';
-      h += '<div style="position:relative;display:inline-block;border:2px solid #FFD700;border-radius:12px;overflow:hidden;">';
+      h += '<div style="position:relative;display:inline-block;border:2px solid #A383E6;border-radius:12px;overflow:hidden;">';
       h += '<img src="' + esc(wizData.selectedConcept.url) + '" style="max-width:100%;max-height:240px;display:block;">';
-      h += '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);padding:6px 12px;font-size:12px;color:#FFD700;">✅ Selected — ' + esc(wizData.selectedConcept.style) + '</div>';
+      h += '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);padding:6px 12px;font-size:12px;color:#A383E6;">✅ Selected — ' + esc(wizData.selectedConcept.style) + '</div>';
       h += '</div>';
       h += '<br><button class="wiz-btn" onclick="wizData.selectedConcept = null; renderWizStep();" style="margin-top:8px;">Change Selection</button>';
       h += '</div>';
     } else if (wizData.conceptTaskIds.length > 0 && !wizData._conceptsLoaded) {
-      // Polling
-      h += '<div id="concept-poll-area"><div class="wiz-loading" style="padding:20px;"><div class="wiz-spinner"></div><div>Generating hero concepts...</div><div style="font-size:11px;color:#555;">Polling KIE tasks...</div></div></div>';
+      h += '<div id="concept-poll-area"><div class="wiz-sniffing"><div class="sniff-beagle"><img src="/assets/mascot/thinker.jpg" alt="Sniffing..."></div><div class="sniff-text">Sniffing out design concepts...</div><div class="sniff-sub">Analyzing colors, fonts, and patterns</div><div class="wiz-spinner" style="margin-top:8px;"></div></div></div>';
     } else if (wizData._concepts && wizData._concepts.length) {
-      // Show concepts for selection
       h += '<div style="display:flex;gap:12px;flex-wrap:wrap;">';
       wizData._concepts.forEach(function(c, i) {
         h += '<div onclick="selectConcept(' + i + ')" style="flex:1;min-width:160px;cursor:pointer;border:1px solid #333;border-radius:12px;overflow:hidden;transition:all 0.2s;background:#111;">';
@@ -1974,12 +2511,14 @@ function renderWizStep() {
     h += '<div class="rv-row"><span class="rv-label">Screenshots</span><span class="rv-value">' + (wizData.screenshots.length || 0) + ' provided' + (wizData.uploadedImages.length ? ' (' + wizData.uploadedImages.length + ' uploaded)' : '') + '</span></div>';
     h += '<div class="rv-row"><span class="rv-label">Inspiration URLs</span><span class="rv-value">' + (wizData.scrape_urls.length || 0) + ' provided</span></div>';
     if (wizData.selectedConcept) {
-      h += '<div class="rv-row"><span class="rv-label">Hero Concept</span><span class="rv-value" style="color:#FFD700;">✅ ' + esc(wizData.selectedConcept.style) + '</span></div>';
+      h += '<div class="rv-row"><span class="rv-label">Hero Concept</span><span class="rv-value" style="color:#A383E6;">✅ ' + esc(wizData.selectedConcept.style) + '</span></div>';
     }
     h += '<div class="rv-row"><span class="rv-label">Seed HTML</span><span class="rv-value">' + (wizData.seed_html ? '✓ ' + (wizData.seed_html.length > 100 ? wizData.seed_html.substring(0, 100) + '...' : wizData.seed_html) : '(none)') + ' — will generate fresh</span></div>';
     h += '</div>';
     h += '<p style="color:#4ade80;font-size:12px;text-align:center;">🔒 What you specified above will be locked and NEVER overridden by AI.</p>';
   }
+
+  h += '</div></div>'; // close strip-content and comic-strip
 
   body.innerHTML = h;
   setStepUI();
@@ -2143,9 +2682,9 @@ function wizCreate() {
   var body = document.getElementById('wizard-body');
   var footer = document.getElementById('wizard-footer');
 
-  // Show loading state
-  body.innerHTML = '<div class="wiz-loading"><div class="wiz-spinner"></div><div>Analyzing design specs...</div><div style="font-size:11px;color:#555;">Scraping URLs · Detecting fonts · Merging spec</div></div>';
-  footer.innerHTML = '<div style="width:100%;text-align:center;color:#666;">Please wait...</div>';
+  // Show sniffing state
+  body.innerHTML = '<div class="wiz-sniffing"><div class="sniff-beagle"><img src="/assets/mascot/thinker.jpg" alt="Sniffing..."></div><div class="sniff-text">*sniff sniff* — Analyzing your design specs...</div><div class="sniff-sub">Scraping URLs · Detecting fonts · Merging everything together</div><div class="wiz-spinner" style="margin-top:4px;"></div></div>';
+  footer.innerHTML = '<div style="width:100%;text-align:center;color:#666;font-size:12px;">Please wait... building your site!</div>';
 
   // Build known payload
   var known = { site_type: wizData.site_type, pages: ['home'] };
@@ -2216,6 +2755,7 @@ function wizCreate() {
 
     // Show quick summary for a few seconds
     showToast(specMsg);
+    showBoneConfetti();
   }).catch(function(err) {
     body.innerHTML = '<div style="padding:24px;color:#f44;text-align:center;"><p>❌ Setup failed</p><p style="font-size:12px;color:#666;">' + err.message + '</p></div>';
     footer.innerHTML = '<button class="wiz-btn ghost" onclick="closeWizard()">Cancel</button>' +
