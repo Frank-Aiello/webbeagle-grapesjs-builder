@@ -396,6 +396,7 @@
   <button class="btn" onclick="openProjects()">📂 Projects</button>
   <button class="btn" onclick="openTheme()">🎨 Theme</button>
   <button class="btn" onclick="openAI()">🤖 AI</button>
+  <button id="anim-panel-btn" class="btn" onclick="AnimationPanel.togglePanel()" style="color:#A383E6;border-color:#A383E644;">🎬 Animate</button>
   <button class="btn anim-test-btn" onclick="loadAnimationTest()" style="color:#A383E6;border-color:#A383E644;">🧪 Anim Test</button>
   <button class="btn" onclick="saveAsBlock()" style="color:#C084FC;border-color:#C084FC44;">📦 Save as Block</button>
   <button class="btn" onclick="editor.UndoManager.undo()" title="Undo (Ctrl+Z)">↩️</button>
@@ -2362,7 +2363,7 @@ editor.on('load', function() {
 </script>
 
 
-<!-- Animation Panel --><div class="anim-panel" id="anim-panel"><h3>🎬 Animation</h3><div id="anim-content"><div class="anim-no-selection">Select a section to configure animations</div></div></div><!-- ═══ PROJECTS MODAL ═══ -->
+<!-- Animation Panel --><div class="anim-panel" id="anim-panel"><h3>🎬 Animation</h3><div id="anim-content"><div class="anim-no-selection">Select any element to configure animations</div></div></div><!-- ═══ PROJECTS MODAL ═══ -->
 <div class="modal-overlay" id="projects-modal">
   <div class="modal">
     <h3>📂 Projects</h3>
@@ -3020,7 +3021,7 @@ var AnimationPanel = (function() {
 
   function render() {
     if (!_selected) {
-      content.innerHTML = '<div class="anim-no-selection">Select a section to configure animations</div>';
+      content.innerHTML = '<div class="anim-no-selection">Select any element to configure animations</div>';
       return;
     }
 
@@ -3125,6 +3126,33 @@ var AnimationPanel = (function() {
       if (typeof animEngine !== 'undefined') { animEngine.reset(); animEngine.apply(); }
       render();
     },
+    togglePanel: function() {
+      if (panel.classList.contains('open')) {
+        hide();
+      } else {
+        // Open with current selection or show placeholder
+        var sel = editor.getSelected();
+        if (sel) {
+          show(sel.getEl());
+        } else {
+          panel.classList.add('open');
+          content.innerHTML = '<div class="anim-no-selection">Select any element to configure animations</div>';
+        }
+      }
+      // Highlight the toolbar button when panel is open
+      var btn = document.getElementById('anim-panel-btn');
+      if (btn) {
+        if (panel.classList.contains('open')) {
+          btn.style.background = '#A383E6';
+          btn.style.color = '#fff';
+          btn.style.borderColor = '#A383E6';
+        } else {
+          btn.style.background = '';
+          btn.style.color = '#A383E6';
+          btn.style.borderColor = '#A383E644';
+        }
+      }
+    },
     setPreset: function(val) { setAttr('data-animate', val); },
     setStagger: function(val) { setAttr('data-stagger', val); },
     setDuration: function(val) { setAttr('data-duration', val); },
@@ -3170,12 +3198,15 @@ var AnimationPanel = (function() {
   return window.AnimationPanel;
 })();
 
-// Wire panel to editor selection
+// Wire panel to editor selection — only update when panel is open
 editor.on('component:selected', function(component) {
-  AnimationPanel.show(component.getEl());
+  var panelEl = document.getElementById('anim-panel');
+  if (panelEl && panelEl.classList.contains('open')) {
+    AnimationPanel.show(component.getEl());
+  }
 });
 editor.on('component:deselected', function() {
-  AnimationPanel.hide();
+  // Don't hide panel — user might select nothing momentarily
 });
 </script>
 <div id="thumbnail-render" style="position:fixed;left:-9999px;top:0;width:400px;pointer-events:none;"></div>
