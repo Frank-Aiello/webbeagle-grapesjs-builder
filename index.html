@@ -658,9 +658,9 @@ section.wb-section{padding:80px 40px;position:relative;z-index:20}
   background:rgba(255,255,255,.03);
   border:1px solid rgba(255,255,255,.08);
   border-radius:24px;padding:32px 28px;
-  transition:all .4s var(--ease);
 }
 .svc-card:hover{
+  transition:box-shadow .4s var(--ease), background .4s var(--ease), border-color .4s var(--ease), transform .4s var(--ease);
   background:rgba(163,131,230,.06);
   border-color:rgba(163,131,230,.25);
   transform:translateY(-4px);
@@ -960,13 +960,13 @@ const BLOCKS = {
     category: '🧩 Sections',
     icon: '💬',
     html: `<section class="wb-section" id="testimonials">
-  <div class="section-header reveal r1 visible">
+  <div class="section-header reveal r1">
     <div class="section-badge"><span class="sdot"></span><span>Social Proof</span></div>
     <h2 class="testimonial-heading">What Clients Say</h2>
     <p>Small businesses love working with us.</p>
   </div>
   <div class="testimonials-grid">
-    <div class="reveal r1 visible testimonial-card">
+    <div class="reveal r1 testimonial-card">
       <div class="testimonial-quote c-purple">&quot;</div>
       <p class="testimonial-text">WebBeagle delivered our site in 48 hours and it looked better than anything our previous agency produced in 3 months. Absolutely elite work.</p>
       <div class="testimonial-author">
@@ -977,7 +977,7 @@ const BLOCKS = {
         </div>
       </div>
     </div>
-    <div class="reveal r2 visible testimonial-card">
+    <div class="reveal r2 testimonial-card">
       <div class="testimonial-quote c-gold">&quot;</div>
       <p class="testimonial-text">I was skeptical about the 48-hour promise. Now I send every client their way. The process is smooth, the quality is consistent, and the ROI is real.</p>
       <div class="testimonial-author">
@@ -988,7 +988,7 @@ const BLOCKS = {
         </div>
       </div>
     </div>
-    <div class="reveal r3 visible testimonial-card">
+    <div class="reveal r3 testimonial-card">
       <div class="testimonial-quote c-teal">&quot;</div>
       <p class="testimonial-text">Booked 14 discovery calls in the first week after launch. The site just converts. If you're on the fence, just do it.</p>
       <div class="testimonial-author">
@@ -1272,6 +1272,19 @@ editor.on('component:add', function(component) {
     component.remove();
     editor.addComponents('<section class="wb-section">' + html + '</section>');
   }
+});
+
+// Stagger reveal: add .visible to canvas .reveal elements on block drops
+editor.on('component:add', function() {
+  clearTimeout(window._revealTimeout);
+  window._revealTimeout = setTimeout(function() {
+    var canvasDoc = editor.Canvas.getDocument();
+    if (canvasDoc) {
+      canvasDoc.querySelectorAll(".reveal:not(.visible)").forEach(function(el) {
+        el.classList.add("visible");
+      });
+    }
+  }, 200);
 });
 
 
