@@ -1,6 +1,6 @@
 /**
  * WebBeagle Canvas Interactivity
- * Scroll reveal, shimmer, sticky hero, smooth scroll, WP Interactions
+ * Scroll reveal, shimmer, sticky hero, smooth scroll
  */
 (function(){
   'use strict';
@@ -50,65 +50,4 @@
       }
     });
   });
-
-  // ── WP Interactions Runtime + Confetti ──────────────────
-  function setupConfetti() {
-    if (typeof InteractRunner === 'undefined') return false;
-    InteractRunner.configure([{
-      key: 'cta_confetti',
-      title: 'CTA Confetti',
-      type: 'click',
-      target: { type: 'selector', value: '.cta-section .btn-white' },
-      timelines: [{
-        loop: false,
-        onceOnly: false,
-        alternate: false,
-        reset: false,
-        reverse: false,
-        actions: [{
-          type: 'confetti',
-          key: 'confetti_1',
-          target: { type: 'trigger' },
-          timing: {
-            isStartingState: false,
-            start: 0,
-            duration: 0.5,
-            easing: 'outCirc'
-          },
-          value: {}
-        }]
-      }],
-      options: []
-    }]);
-    InteractRunner.init();
-    return true;
-  }
-
-  // Load the interactions runtime
-  var script = document.createElement('script');
-  script.src = 'https://builder.webbeagle.com/assets/wp-interactions-full.js';
-  script.onload = function() {
-    // Give the runtime a tick to initialize
-    setTimeout(function() {
-      if (!setupConfetti()) {
-        console.warn('WP Interactions: setupConfetti failed after runtime loaded');
-      }
-    }, 100);
-  };
-  script.onerror = function() {
-    console.warn('WP Interactions runtime failed to load');
-  };
-  document.head.appendChild(script);
-
-  // Backup polling: try every 500ms for up to 10 seconds
-  var attempts = 0;
-  var pollInterval = setInterval(function() {
-    attempts++;
-    if (setupConfetti()) {
-      clearInterval(pollInterval);
-    } else if (attempts > 20) {
-      clearInterval(pollInterval);
-      console.warn('WP Interactions: runtime did not load within 10s');
-    }
-  }, 500);
 })();
