@@ -8,6 +8,8 @@
   <!-- Plugin dependencies -->
   <link rel="stylesheet" href="https://unpkg.com/grapick/dist/grapick.min.css">
   <style>
+    /* Google Fonts — available in all projects */
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Montserrat:wght@400;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@400;600;700&family=Lato:wght@300;400;700&family=Poppins:wght@400;600;700&family=Playfair+Display:wght@400;700&family=Oswald:wght@400;500;700&family=Raleway:wght@400;600;700&family=Nunito:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; font-family: Inter, system-ui, sans-serif; }
 
@@ -1312,6 +1314,36 @@ var editor = grapesjs.init({
     'grapesjs-tui-image-editor': {
       labelImageEditor: 'Edit Image',
       addToAssets: true
+    }
+  }
+});
+
+// ── Google Fonts in Style Manager ───────────────────────────────
+editor.on('load', function() {
+  var sm = editor.StyleManager;
+  var sector = sm.getSector('typography');
+  if (sector) {
+    var prop = sector.getProperty('font-family');
+    if (prop) {
+      prop.set('type', 'select');
+      prop.set('options', [
+        { value: "'Bebas Neue', sans-serif", name: 'Bebas Neue (Display)' },
+        { value: "'Cinzel', serif", name: 'Cinzel (Elegant)' },
+        { value: "'Inter', sans-serif", name: 'Inter (Body)' },
+        { value: "'Plus Jakarta Sans', sans-serif", name: 'Plus Jakarta Sans' },
+        { value: "'Montserrat', sans-serif", name: 'Montserrat' },
+        { value: "'Roboto', sans-serif", name: 'Roboto' },
+        { value: "'Open Sans', sans-serif", name: 'Open Sans' },
+        { value: "'Lato', sans-serif", name: 'Lato' },
+        { value: "'Poppins', sans-serif", name: 'Poppins' },
+        { value: "'Playfair Display', serif", name: 'Playfair Display' },
+        { value: "'Oswald', sans-serif", name: 'Oswald' },
+        { value: "'Raleway', sans-serif", name: 'Raleway' },
+        { value: "'Nunito', sans-serif", name: 'Nunito' },
+        { value: "'Source Sans 3', sans-serif", name: 'Source Sans 3' },
+        { value: "'Georgia', serif", name: 'Georgia (System)' },
+        { value: "'Courier New', monospace", name: 'Courier New (Mono)' }
+      ]);
     }
   }
 });
