@@ -1489,6 +1489,37 @@ var currentProjectId = null;
 var currentPageId = 'home';
 var currentThemeCss = THEME_CSS;
 
+/* ── Restore last session on refresh ──────────────────────────── */
+(function restoreLastSession() {
+  try {
+    var saved = localStorage.getItem('webbeagle_last_project');
+    if (saved) {
+      var state = JSON.parse(saved);
+      if (state.projectId && state.pageId) {
+        currentProjectId = state.projectId;
+        currentPageId = state.pageId;
+        // Don't load immediately — wait for editor to be ready
+        editor.on('load', function() {
+          setTimeout(function() {
+            loadProject(currentProjectId);
+          }, 200);
+        });
+      }
+    }
+  } catch(e) {}
+})();
+
+function _saveLastSession() {
+  try {
+    if (currentProjectId) {
+      localStorage.setItem('webbeagle_last_project', JSON.stringify({
+        projectId: currentProjectId,
+        pageId: currentPageId
+      }));
+    }
+  } catch(e) {}
+}
+
 /* ══════════════════════════════════════════════════════════════
    API HELPER
    ══════════════════════════════════════════════════════════════ */
@@ -1613,6 +1644,7 @@ function loadProject(id) {
     document.getElementById('project-select').value = id;
     if (data.theme_css) { currentThemeCss = data.theme_css; applyThemeSilent(currentThemeCss); }
     setStatus('Loaded: ' + data.name, true);
+    _saveLastSession();
     // Apply animations via engine
     setTimeout(function() {
       if (typeof animEngine !== 'undefined') { animEngine.reset(); animEngine.apply(); }
@@ -1981,15 +2013,15 @@ function aiEditSelected() {
   document.getElementById('ai-status').textContent = 'Selected: ' + (selected.get('tagName') || 'component') + ' — describe changes below';
   lastGeneratedHtml = html;
 }
-
-function aiGenerate() {
+async function aiGenerate() {
   var prompt = document.getElementById('ai-prompt').value.trim();
   if (!prompt) { alert('Enter a prompt first'); return; }
+
   var btn = document.getElementById('ai-generate-btn');
   var status = document.getElementById('ai-status');
   btn.disabled = true;
-  btn.textContent = '⏳ Generating...';
-  status.textContent = 'Calling AI...';
+  btn.textContent = '⏳ Uploading...';
+  status.textContent = 'Uploading image...';
 
   var designMd = '';
   try { designMd = generateDESIGNmd(currentThemeCss); } catch(e) {}
@@ -2003,7 +2035,44 @@ function aiGenerate() {
     context_html: contextHtml,
     mode: replaceMode ? 'edit' : 'generate'
   };
-  if (aiImageDataUrl) body.vision_url = aiImageDataUrl;
+
+  // If user uploaded an image, upload it to server first for a public URL
+  if (aiImageDataUrl && aiImageDataUrl.startsWith('data:')) {
+    try {
+      // Convert data URL to Blob
+      var mime = aiImageDataUrl.match(/^data:(image\/[^;]+);/)[1];
+      var byteString = atob(aiImageDataUrl.split(',')[1]);
+      var ab = new ArrayBuffer(byteString.length);
+      var ia = new Uint8Array(ab);
+      for (var i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+      var blob = new Blob([ab], { type: mime });
+      var ext = mime.split('/')[1] || 'png';
+      var file = new File([blob], 'ai-upload.' + ext, { type: mime });
+
+      var formData = new FormData();
+      formData.append('file', file);
+
+      status.textContent = 'Uploading image...';
+      var uploadResp = await fetch('/api/assets/upload', { method: 'POST', body: formData });
+      var uploadData = await uploadResp.json();
+      if (uploadData.url) {
+        body.vision_url = uploadData.url;
+        status.textContent = 'Image uploaded. Calling AI...';
+      } else {
+        status.textContent = 'Upload failed: ' + (uploadData.error || 'unknown');
+        btn.disabled = false;
+        btn.textContent = '✨ Generate';
+        return;
+      }
+    } catch (err) {
+      status.textContent = 'Upload error: ' + err.message;
+      btn.disabled = false;
+      btn.textContent = '✨ Generate';
+      return;
+    }
+  }
+
+  btn.textContent = '⏳ Generating...';
   if (replaceMode && lastGeneratedHtml) body.existing_html = lastGeneratedHtml;
 
   fetch('/api/ai/generate', {
