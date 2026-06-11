@@ -1725,14 +1725,14 @@ function saveToServer() {
   if (!currentProjectId) {
     // Auto-create a project from the current canvas content
     var autoName = 'WebBeagle Homepage ' + new Date().toISOString().substring(0, 10);
-    api('POST', '/api/projects', { name: autoName, theme_css: currentThemeCss }).then(function(data) {
+    return api('POST', '/api/projects', { name: autoName, theme_css: currentThemeCss }).then(function(data) {
       if (data.error) { setStatus('Error: ' + data.error); return; }
       currentProjectId = data.id;
       currentPageId = 'home';
       try {
         var components = editor.getComponents();
         var css = editor.getStyle();
-        api('PUT', '/api/projects/' + currentProjectId, {
+        return api('PUT', '/api/projects/' + currentProjectId, {
           pages_data: { [currentPageId]: { components: components, styles: css } }
         }).then(function(d2) {
           refreshProjectList();
@@ -1740,12 +1740,11 @@ function saveToServer() {
         });
       } catch(e) { setStatus('Save failed: ' + e.message); }
     });
-    return;
   }
   try {
     var components = editor.getComponents();
     var css = editor.getStyle();
-    api('PUT', '/api/projects/' + currentProjectId, {
+    return api('PUT', '/api/projects/' + currentProjectId, {
       pages_data: { [currentPageId]: { components: components, styles: css } }
     }).then(function(data) {
       if (data.error) { setStatus('Error: ' + data.error); return; }
@@ -1762,24 +1761,22 @@ function publishProject() {
       if (data.error) { setStatus('Error: ' + data.error); return; }
       currentProjectId = data.id;
       currentPageId = 'home';
-      try {
-        var components = editor.getComponents();
-        var css = editor.getStyle();
-        api('PUT', '/api/projects/' + currentProjectId, {
-          pages_data: { [currentPageId]: { components: components, styles: css } }
-        }).then(function(d2) {
-          refreshProjectList();
-          var url = 'https://' + currentProjectId + '.preview.webbeagle.com/';
-          setStatus('Published at ' + url, true);
-        });
-      } catch(e) { setStatus('Publish failed: ' + e.message); }
+      saveToServer().then(function() {
+        refreshProjectList();
+        var url = 'https://' + currentProjectId + '.preview.webbeagle.com/';
+        setStatus('Saved & Published ✓ — ' + url, true);
+        window.open(url, '_blank');
+      });
     });
     return;
   }
-  saveToServer();
-  var url = 'https://' + currentProjectId + '.preview.webbeagle.com/';
-  setStatus('Published at ' + url, true);
-  window.open(url, '_blank');
+  // Save first, then publish
+  setStatus('Saving...');
+  saveToServer().then(function() {
+    var url = 'https://' + currentProjectId + '.preview.webbeagle.com/';
+    setStatus('Saved & Published ✓ — ' + url, true);
+    window.open(url, '_blank');
+  });
 }
 
 /* ══════════════════════════════════════════════════════════════
