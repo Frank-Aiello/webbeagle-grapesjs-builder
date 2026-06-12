@@ -2069,6 +2069,8 @@ function resetAIState() {
   document.getElementById('ai-zip-status').textContent = '';
   document.getElementById('ai-zip-input').value = '';
   switchAIMode('quick');
+  document.getElementById('ai-result-btns').style.display = 'none';
+  document.getElementById('ai-generate-btn').style.display = '';
 }
 
 function aiImageSelected(event) {
@@ -2152,12 +2154,13 @@ async function aiGenerate() {
       btn.disabled = false;
       btn.textContent = '✨ Generate';
       if (data.error) { status.textContent = 'Error: ' + data.error; return; }
-      try {
-        editor.addComponents(data.html);
-        setStatus('Pixel-perfect section added! ✓', true);
-        document.getElementById('ai-modal').classList.remove('open');
-        resetAIState();
-      } catch(e) { alert('Failed to apply: ' + e.message); }
+      // Store result for refinement
+      window._pixelPerfectResult = { html: data.html, mockup_url: aiMockupUrl };
+      // Show Insert/Refine buttons
+      status.textContent = 'Section generated! Choose:';
+      var btns = document.getElementById('ai-result-btns');
+      btns.style.display = 'flex';
+      btn.style.display = 'none';
     })
     .catch(function(err) {
       btn.disabled = false;
@@ -2165,6 +2168,46 @@ async function aiGenerate() {
       status.textContent = 'Network error: ' + err.message;
     });
     return;
+  }
+
+  function aiInsertResult() {
+    var result = window._pixelPerfectResult;
+    if (!result) return;
+    try {
+      editor.addComponents(result.html);
+      setStatus('Section added! ✓', true);
+    } catch(e) { alert('Failed: ' + e.message); }
+    document.getElementById('ai-modal').classList.remove('open');
+    resetAIState();
+  }
+
+  async function aiRefineResult() {
+    var result = window._pixelPerfectResult;
+    if (!result) return;
+    var status = document.getElementById('ai-status');
+    var btn = document.getElementById('ai-refine-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Refining...';
+    status.textContent = 'Running closed-loop refinement...';
+    try {
+      var resp = await fetch('/api/ai/pixel-perfect/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: result.html, mockup_url: result.mockup_url })
+      });
+      var data = await resp.json();
+      btn.disabled = false;
+      btn.textContent = '🔄 Refine (3 passes)';
+      if (data.error) { status.textContent = 'Refine error: ' + data.error; return; }
+      result.html = data.html;
+      status.textContent = 'Refined! Score: ' + (data.final_score || '?') + '/100 after ' + (data.refinement || []).length + ' passes';
+      // Update stored result
+      window._pixelPerfectResult = result;
+    } catch(err) {
+      btn.disabled = false;
+      btn.textContent = '🔄 Refine (3 passes)';
+      status.textContent = 'Refine error: ' + err.message;
+    }
   }
 
   // Quick mode: existing logic
@@ -2766,6 +2809,10 @@ editor.on('load', function() {
     </div>
 
     <div id="ai-status"></div>
+    <div id="ai-result-btns" style="display:none;gap:8px;margin-bottom:8px;">
+      <button class="sf-btn success" onclick="aiInsertResult()" style="flex:1;">✅ Insert Section</button>
+      <button class="sf-btn" onclick="aiRefineResult()" id="ai-refine-btn" style="flex:1;">🔄 Refine (3 passes)</button>
+    </div>
     <div class="btn-row">
       <button class="sf-btn" onclick="closeAI()">Cancel</button>
       <button class="sf-btn primary" onclick="aiGenerate()" id="ai-generate-btn">✨ Generate</button>
