@@ -1349,21 +1349,23 @@ editor.on('load', function() {
 });
 
 // ── Background Position: replace dropdown with text input for pixel control ──
-editor.on('load', function() {
-  // Find the Background stack property in the Decorations sector
-  var dec = editor.StyleManager.getSector('decorations');
-  if (!dec) return;
-  var bgStack = dec.getProperty('background');
-  if (!bgStack) return;
-  // Get the layer sub-properties collection
-  var layerProps = bgStack.get('properties');
-  if (!layerProps) return;
-  // Find and modify the background-position select → text input
-  var posProp = layerProps.find(function(p) { return p.get('property') === 'background-position'; });
-  if (posProp) {
-    posProp.set('type', 'text');
-    posProp.set('defaults', '0px 0px');
-  }
+var _bgPosPatched = false;
+editor.on('component:selected', function() {
+  if (_bgPosPatched) return;
+  setTimeout(function() {
+    var dec = editor.StyleManager.getSector('decorations');
+    if (!dec) return;
+    var bgStack = dec.getProperty('background');
+    if (!bgStack) return;
+    var posProp = bgStack.get('properties').find(function(p) { return p.get('property') === 'background-position'; });
+    if (posProp) {
+      posProp.set('type', 'text');
+      posProp.set('defaults', '0px 0px');
+      _bgPosPatched = true;
+      // Force the Style Manager to re-render so the text input appears
+      if (editor.StyleManager.render) editor.StyleManager.render();
+    }
+  }, 400);
 });
 
 // Initialize the animation engine
