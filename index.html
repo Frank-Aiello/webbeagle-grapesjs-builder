@@ -1348,6 +1348,34 @@ editor.on('load', function() {
   }
 });
 
+// ── Background Position X/Y pixel controls ─────────────────────────
+editor.on('load', function() {
+  var sm = editor.StyleManager;
+  // Background lives in the Decorations sector, not a standalone "background" sector
+  var sector = sm.getSector('Decorations');
+  if (sector) {
+    // Check if already added (avoid duplicates on re-load)
+    if (!sector.getProperty('bg-pos-x')) {
+      sector.addProperty('bg-pos-x', {
+        name: 'BG Position X',
+        type: 'integer',
+        units: ['px'],
+        default: '0',
+        property: 'background-position-x'
+      });
+    }
+    if (!sector.getProperty('bg-pos-y')) {
+      sector.addProperty('bg-pos-y', {
+        name: 'BG Position Y',
+        type: 'integer',
+        units: ['px'],
+        default: '0',
+        property: 'background-position-y'
+      });
+    }
+  }
+});
+
 // Initialize the animation engine
 var animEngine = AnimationEngine.init(editor);
 
