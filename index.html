@@ -2023,6 +2023,7 @@ function aiZipSelected(event) {
     .then(function(data) {
       if (data.extracted !== undefined) {
         aiZipUploaded = true;
+        window._aiZipFiles = data.files;  // Store for pixel-perfect
         zipLabel.textContent = '✅ ' + data.extracted + ' assets extracted';
         zipLabel.style.borderColor = '#39ff8d';
         zipStatus.textContent = data.files.map(function(f) { return f.original; }).join(', ');
@@ -2126,6 +2127,7 @@ function resetAIState() {
   aiMode = 'quick';
   aiMockupUrl = '';
   aiZipUploaded = false;
+  window._aiZipFiles = null;
   document.getElementById('ai-status').textContent = '';
   document.getElementById('ai-prompt').value = '';
   document.getElementById('ai-prompt').placeholder = 'e.g., Add a pricing table with 3 tiers: Starter ($29/mo), Pro ($79/mo), Enterprise ($199/mo). Include feature lists and CTA buttons.';
@@ -2228,7 +2230,7 @@ async function aiGenerate() {
     fetch('/api/ai/pixel-perfect', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mockup_url: aiMockupUrl, prompt: prompt })
+      body: JSON.stringify({ mockup_url: aiMockupUrl, prompt: prompt, assets: window._aiZipFiles || [] })
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -2855,7 +2857,7 @@ editor.on('load', function() {
     <!-- Pixel-Perfect Preview -->
     <div id="ai-preview-container" style="display:none;margin-bottom:10px;border:1px solid #333;border-radius:8px;overflow:hidden;background:#111;">
       <div style="font-size:11px;color:#666;padding:4px 8px;background:#1a1a1a;border-bottom:1px solid #333;">🔍 Generated Preview</div>
-      <iframe id="ai-preview-frame" style="width:100%;height:200px;border:none;background:#111;" sandbox="allow-same-origin"></iframe>
+      <iframe id="ai-preview-frame" style="width:100%;height:200px;border:none;background:#111;"></iframe>
     </div>
     <div id="ai-result-btns" style="display:none;gap:8px;margin-bottom:8px;">
       <button class="sf-btn success" id="ai-insert-btn" onclick="aiInsertResult()" style="flex:1;">✅ Insert Section</button>
