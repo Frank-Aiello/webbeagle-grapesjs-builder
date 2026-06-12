@@ -1349,11 +1349,9 @@ editor.on('load', function() {
 });
 
 // ── Background Position X/Y pixel controls ─────────────────────────
-// Hook into StyleManager sector creation (sectors are lazy-initialized)
-editor.StyleManager.on('sector:add', function(sector) {
-  if (sector.get('name') !== 'Decorations') return;
-  // Check if already added (avoid duplicates)
-  if (sector.getProperty('bg-pos-x')) return;
+function _addBgPositionControls() {
+  var sector = editor.StyleManager.getSector('Decorations');
+  if (!sector || sector.getProperty('bg-pos-x')) return;
   sector.addProperty('bg-pos-x', {
     name: 'BG Position X',
     type: 'integer',
@@ -1368,6 +1366,12 @@ editor.StyleManager.on('sector:add', function(sector) {
     default: '0',
     property: 'background-position-y'
   });
+}
+// Run immediately for already-created sectors (defaults created during init)
+_addBgPositionControls();
+// Also hook into sector:add for any dynamically created sectors
+editor.StyleManager.on('sector:add', function(sector) {
+  if (sector.get('name') === 'Decorations') _addBgPositionControls();
 });
 
 // Initialize the animation engine
