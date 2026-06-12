@@ -1350,7 +1350,8 @@ editor.on('load', function() {
 
 // ── Background Position X/Y pixel controls ─────────────────────────
 function _addBgPositionControls() {
-  var sector = editor.StyleManager.getSector('Decorations');
+  // getSector uses lowercase ID, not display name
+  var sector = editor.StyleManager.getSector('decorations');
   if (!sector || sector.getProperty('bg-pos-x')) return;
   sector.addProperty('bg-pos-x', {
     name: 'BG Position X',
@@ -1367,11 +1368,11 @@ function _addBgPositionControls() {
     property: 'background-position-y'
   });
 }
-// Run immediately for already-created sectors (defaults created during init)
+// Run immediately (sectors are created during init)
 _addBgPositionControls();
-// Also hook into sector:add for any dynamically created sectors
-editor.StyleManager.on('sector:add', function(sector) {
-  if (sector.get('name') === 'Decorations') _addBgPositionControls();
+// Also hook into the Backbone collection for dynamically added sectors
+editor.StyleManager.sectors.on('add', function(sector) {
+  if (sector.get('id') === 'decorations') _addBgPositionControls();
 });
 
 // Initialize the animation engine
