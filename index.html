@@ -1348,31 +1348,22 @@ editor.on('load', function() {
   }
 });
 
-// ── Background Position X/Y pixel controls ─────────────────────────
-function _addBgPositionControls() {
-  // getSector uses lowercase ID, not display name
-  var sector = editor.StyleManager.getSector('decorations');
-  if (!sector || sector.getProperty('bg-pos-x')) return;
-  sector.addProperty('bg-pos-x', {
-    name: 'BG Position X',
-    type: 'integer',
-    units: ['px'],
-    default: '0',
-    property: 'background-position-x'
-  });
-  sector.addProperty('bg-pos-y', {
-    name: 'BG Position Y',
-    type: 'integer',
-    units: ['px'],
-    default: '0',
-    property: 'background-position-y'
-  });
-}
-// Run immediately (sectors are created during init)
-_addBgPositionControls();
-// Also hook into the Backbone collection for dynamically added sectors
-editor.StyleManager.sectors.on('add', function(sector) {
-  if (sector.get('id') === 'decorations') _addBgPositionControls();
+// ── Background Position: replace dropdown with text input for pixel control ──
+editor.on('load', function() {
+  // Find the Background stack property in the Decorations sector
+  var dec = editor.StyleManager.getSector('decorations');
+  if (!dec) return;
+  var bgStack = dec.getProperty('background');
+  if (!bgStack) return;
+  // Get the layer sub-properties collection
+  var layerProps = bgStack.get('properties');
+  if (!layerProps) return;
+  // Find and modify the background-position select → text input
+  var posProp = layerProps.find(function(p) { return p.get('property') === 'background-position'; });
+  if (posProp) {
+    posProp.set('type', 'text');
+    posProp.set('defaults', '0px 0px');
+  }
 });
 
 // Initialize the animation engine
