@@ -1948,8 +1948,91 @@ var lastGeneratedHtml = '';
 var replaceMode = false;
 var selectedComponent = null;
 var aiImageDataUrl = '';
+var aiMode = 'quick';          // 'quick' or 'pixel'
+var aiMockupUrl = '';          // uploaded mockup public URL
+var aiZipUploaded = false;     // whether assets ZIP was uploaded
 
 function openDocs() { window.open('/docs/', '_blank'); }
+
+function switchAIMode(mode) {
+  aiMode = mode;
+  var quickBtn = document.getElementById('ai-mode-quick');
+  var pixelBtn = document.getElementById('ai-mode-pixel');
+  var quickSection = document.getElementById('ai-quick-section');
+  var pixelSection = document.getElementById('ai-pixel-section');
+  
+  if (mode === 'pixel') {
+    quickBtn.style.background = ''; quickBtn.style.color = ''; quickBtn.style.borderColor = '';
+    pixelBtn.style.background = '#252525'; pixelBtn.style.color = '#39ff8d'; pixelBtn.style.borderColor = '#39ff8d';
+    quickSection.style.display = 'none';
+    pixelSection.style.display = 'block';
+    document.getElementById('ai-subtitle').textContent = '1. Upload the design mockup image  2. Upload a ZIP of exported assets  3. Click Generate';
+  } else {
+    quickBtn.style.background = '#252525'; quickBtn.style.color = '#FFD700'; quickBtn.style.borderColor = '#FFD700';
+    pixelBtn.style.background = ''; pixelBtn.style.color = ''; pixelBtn.style.borderColor = '';
+    quickSection.style.display = 'block';
+    pixelSection.style.display = 'none';
+    document.getElementById('ai-subtitle').textContent = 'Describe a section and the AI will generate it matching your theme. Drop a screenshot to recreate a design.';
+  }
+}
+
+function aiMockupSelected(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('ai-mockup-thumb').src = e.target.result;
+    document.getElementById('ai-mockup-preview').style.display = 'block';
+    document.getElementById('ai-mockup-label').textContent = file.name + ' ✓';
+    document.getElementById('ai-mockup-label').style.borderColor = '#39ff8d';
+    // Upload immediately to get public URL
+    uploadMockupToServer(file);
+  };
+  reader.readAsDataURL(file);
+}
+
+function uploadMockupToServer(file) {
+  var status = document.getElementById('ai-status');
+  status.textContent = 'Uploading mockup...';
+  var formData = new FormData();
+  formData.append('file', file);
+  fetch('/api/assets/upload', { method: 'POST', body: formData })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.url) {
+        aiMockupUrl = data.url;
+        status.textContent = 'Mockup uploaded ✓ — ' + data.url;
+      } else {
+        status.textContent = 'Mockup upload failed: ' + (data.error || '');
+      }
+    })
+    .catch(function(err) { status.textContent = 'Upload error: ' + err.message; });
+}
+
+function aiZipSelected(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var status = document.getElementById('ai-status');
+  var zipLabel = document.getElementById('ai-zip-label');
+  var zipStatus = document.getElementById('ai-zip-status');
+  status.textContent = 'Uploading assets...';
+  var formData = new FormData();
+  formData.append('file', file);
+  fetch('/api/assets/upload-zip', { method: 'POST', body: formData })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.extracted !== undefined) {
+        aiZipUploaded = true;
+        zipLabel.textContent = '✅ ' + data.extracted + ' assets extracted';
+        zipLabel.style.borderColor = '#39ff8d';
+        zipStatus.textContent = data.files.map(function(f) { return f.original; }).join(', ');
+        status.textContent = data.extracted + ' assets ready ✓';
+      } else {
+        status.textContent = 'ZIP upload failed: ' + (data.error || '');
+      }
+    })
+    .catch(function(err) { status.textContent = 'Upload error: ' + err.message; });
+}
 
 function openAI() {
   document.getElementById('ai-modal').classList.add('open');
@@ -1965,6 +2048,9 @@ function resetAIState() {
   lastGeneratedHtml = '';
   replaceMode = false;
   selectedComponent = null;
+  aiMode = 'quick';
+  aiMockupUrl = '';
+  aiZipUploaded = false;
   document.getElementById('ai-status').textContent = '';
   document.getElementById('ai-prompt').value = '';
   document.getElementById('ai-prompt').placeholder = 'e.g., Add a pricing table with 3 tiers: Starter ($29/mo), Pro ($79/mo), Enterprise ($199/mo). Include feature lists and CTA buttons.';
@@ -1972,6 +2058,17 @@ function resetAIState() {
   document.getElementById('ai-subtitle').textContent = 'Describe a section and the AI will generate it matching your theme. Drop a screenshot to recreate a design.';
   document.getElementById('ai-generate-btn').textContent = '✨ Generate';
   aiClearImage();
+  // Reset pixel-perfect UI
+  document.getElementById('ai-mockup-thumb').src = '';
+  document.getElementById('ai-mockup-preview').style.display = 'none';
+  document.getElementById('ai-mockup-label').textContent = 'Click to upload design mockup (PNG/JPG)';
+  document.getElementById('ai-mockup-label').style.borderColor = '#444';
+  document.getElementById('ai-mockup-input').value = '';
+  document.getElementById('ai-zip-label').textContent = 'Click to upload assets ZIP';
+  document.getElementById('ai-zip-label').style.borderColor = '#444';
+  document.getElementById('ai-zip-status').textContent = '';
+  document.getElementById('ai-zip-input').value = '';
+  switchAIMode('quick');
 }
 
 function aiImageSelected(event) {
@@ -2034,6 +2131,43 @@ async function aiGenerate() {
   };
 
   // If user uploaded an image, upload it to server first for a public URL
+  if (aiMode === 'pixel') {
+    // Pixel-Perfect mode: use the dedicated endpoint
+    if (!aiMockupUrl) {
+      status.textContent = 'Please upload a design mockup image first';
+      btn.disabled = false;
+      btn.textContent = '✨ Generate';
+      return;
+    }
+    btn.textContent = '⏳ Running pixel-perfect pipeline...';
+    status.textContent = 'Analyzing mockup + assets...';
+    
+    fetch('/api/ai/pixel-perfect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mockup_url: aiMockupUrl, prompt: prompt })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      btn.disabled = false;
+      btn.textContent = '✨ Generate';
+      if (data.error) { status.textContent = 'Error: ' + data.error; return; }
+      try {
+        editor.addComponents(data.html);
+        setStatus('Pixel-perfect section added! ✓', true);
+        document.getElementById('ai-modal').classList.remove('open');
+        resetAIState();
+      } catch(e) { alert('Failed to apply: ' + e.message); }
+    })
+    .catch(function(err) {
+      btn.disabled = false;
+      btn.textContent = '✨ Generate';
+      status.textContent = 'Network error: ' + err.message;
+    });
+    return;
+  }
+
+  // Quick mode: existing logic
   if (aiImageDataUrl && aiImageDataUrl.startsWith('data:')) {
     try {
       // Convert data URL to Blob
@@ -2593,14 +2727,44 @@ editor.on('load', function() {
   <div class="modal" style="width:600px;">
     <h3 id="ai-title">🤖 AI Section Generator</h3>
     <p class="sub" id="ai-subtitle">Describe a section and the AI will generate it matching your theme. Drop a screenshot to recreate a design.</p>
+    
+    <!-- Mode toggle -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button class="sf-btn" id="ai-mode-quick" onclick="switchAIMode('quick')" style="flex:1;background:#252525;color:#FFD700;border-color:#FFD700;">⚡ Quick Generate</button>
+      <button class="sf-btn" id="ai-mode-pixel" onclick="switchAIMode('pixel')" style="flex:1;">🎯 Pixel-Perfect</button>
+    </div>
+
     <textarea id="ai-prompt" placeholder="e.g., Add a pricing table with 3 tiers: Starter ($29/mo), Pro ($79/mo), Enterprise ($199/mo)..." style="height:100px;"></textarea>
-    <div>
+    
+    <!-- Quick mode: single image -->
+    <div id="ai-quick-section">
       <label id="ai-image-label" for="ai-image-input" style="display:block;padding:16px;border:1px dashed #333;border-radius:8px;text-align:center;cursor:pointer;color:#666;font-size:12px;transition:all 0.2s;" onmouseover="this.style.borderColor='#FFD70044';this.style.color='#999'" onmouseout="this.style.borderColor='#333';this.style.color='#666'">
         Drop a screenshot or design image (optional)
       </label>
       <input type="file" id="ai-image-input" accept="image/*" onchange="aiImageSelected(event)" style="display:none;">
       <div id="ai-image-preview"><img id="ai-image-thumb" style="max-width:100%;"></div>
     </div>
+
+    <!-- Pixel-Perfect mode: mockup + assets zip -->
+    <div id="ai-pixel-section" style="display:none;">
+      <div style="margin-bottom:10px;">
+        <div style="font-size:12px;color:#999;margin-bottom:4px;">📸 Design Mockup Image</div>
+        <label id="ai-mockup-label" for="ai-mockup-input" style="display:block;padding:16px;border:1px dashed #444;border-radius:8px;text-align:center;cursor:pointer;color:#666;font-size:12px;transition:all 0.2s;" onmouseover="this.style.borderColor='#39ff8d44';this.style.color='#999'" onmouseout="this.style.borderColor='#444';this.style.color='#666'">
+          Click to upload design mockup (PNG/JPG)
+        </label>
+        <input type="file" id="ai-mockup-input" accept="image/*" onchange="aiMockupSelected(event)" style="display:none;">
+        <div id="ai-mockup-preview"><img id="ai-mockup-thumb" style="max-width:100%;max-height:100px;border-radius:8px;margin-top:4px;"></div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:12px;color:#999;margin-bottom:4px;">📦 Exported Assets (ZIP of PNG/JPG images)</div>
+        <label id="ai-zip-label" for="ai-zip-input" style="display:block;padding:14px;border:1px dashed #444;border-radius:8px;text-align:center;cursor:pointer;color:#666;font-size:12px;transition:all 0.2s;" onmouseover="this.style.borderColor='#39ff8d44';this.style.color='#999'" onmouseout="this.style.borderColor='#444';this.style.color='#666'">
+          Click to upload assets ZIP
+        </label>
+        <input type="file" id="ai-zip-input" accept=".zip" onchange="aiZipSelected(event)" style="display:none;">
+        <div id="ai-zip-status" style="font-size:11px;color:#4ade80;margin-top:2px;"></div>
+      </div>
+    </div>
+
     <div id="ai-status"></div>
     <div class="btn-row">
       <button class="sf-btn" onclick="closeAI()">Cancel</button>
