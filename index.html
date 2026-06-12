@@ -2044,6 +2044,81 @@ function openAI() {
 
 function closeAI() { document.getElementById('ai-modal').classList.remove('open'); }
 
+// ═══ GLOBAL: Pixel-Perfect Preview + Actions ═══
+function renderPixelPreview(html) {
+  var container = document.getElementById('ai-preview-container');
+  var iframe = document.getElementById('ai-preview-frame');
+  if (!container || !iframe) return;
+  var themeStyles = '';
+  try { themeStyles = '<style>' + currentThemeCss + '</style>'; } catch(e) {}
+  iframe.srcdoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' + themeStyles + '</head><body style="margin:0;padding:0;background:#111;">' + html + '</body></html>';
+  container.style.display = 'block';
+  iframe.onload = function() {
+    try {
+      var doc = iframe.contentDocument;
+      var h = Math.max(doc.body.scrollHeight, doc.body.offsetHeight, doc.documentElement.clientHeight);
+      iframe.style.height = Math.min(h + 20, 500) + 'px';
+    } catch(e) {}
+  };
+}
+
+function aiInsertResult() {
+  var result = window._pixelPerfectResult;
+  if (!result) return;
+  try {
+    var parsed = editor.Parser.parseHtml(result.html);
+    if (parsed && parsed.length) {
+      editor.addComponents(parsed);
+      document.getElementById('ai-status').textContent = '✅ Section added!';
+    } else {
+      // Fallback: try direct HTML
+      editor.addComponents(result.html);
+      document.getElementById('ai-status').textContent = '✅ Section added!';
+    }
+  } catch(e) {
+    document.getElementById('ai-status').textContent = '❌ Insert failed: ' + e.message;
+    return;
+  }
+  setTimeout(function() {
+    document.getElementById('ai-modal').classList.remove('open');
+    resetAIState();
+  }, 600);
+}
+
+async function aiRefineResult() {
+  var result = window._pixelPerfectResult;
+  if (!result) return;
+  var status = document.getElementById('ai-status');
+  var btn = document.getElementById('ai-refine-btn');
+  var insertBtn = document.getElementById('ai-insert-btn');
+  btn.disabled = true;
+  if (insertBtn) insertBtn.disabled = true;
+  btn.textContent = '⏳ Refining...';
+  status.textContent = 'Running closed-loop refinement...';
+  try {
+    var resp = await fetch('/api/ai/pixel-perfect/refine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ html: result.html, mockup_url: result.mockup_url })
+    });
+    var data = await resp.json();
+    btn.disabled = false;
+    if (insertBtn) insertBtn.disabled = false;
+    btn.textContent = '🔄 Refine (3 passes)';
+    if (data.error) { status.textContent = 'Refine error: ' + data.error; return; }
+    result.html = data.html;
+    window._pixelPerfectResult = result;
+    // Update preview with refined HTML
+    renderPixelPreview(data.html);
+    status.textContent = 'Refined! Score: ' + (data.final_score || '?') + '/100 after ' + (data.refinement || []).length + ' passes';
+  } catch(err) {
+    btn.disabled = false;
+    if (insertBtn) insertBtn.disabled = false;
+    btn.textContent = '🔄 Refine (3 passes)';
+    status.textContent = 'Refine error: ' + err.message;
+  }
+}
+
 function resetAIState() {
   lastGeneratedHtml = '';
   replaceMode = false;
@@ -2071,6 +2146,12 @@ function resetAIState() {
   switchAIMode('quick');
   document.getElementById('ai-result-btns').style.display = 'none';
   document.getElementById('ai-generate-btn').style.display = '';
+  // Hide pixel preview
+  var preview = document.getElementById('ai-preview-container');
+  if (preview) preview.style.display = 'none';
+  var frame = document.getElementById('ai-preview-frame');
+  if (frame) frame.srcdoc = '';
+  window._pixelPerfectResult = null;
 }
 
 function aiImageSelected(event) {
@@ -2156,8 +2237,10 @@ async function aiGenerate() {
       if (data.error) { status.textContent = 'Error: ' + data.error; return; }
       // Store result for refinement
       window._pixelPerfectResult = { html: data.html, mockup_url: aiMockupUrl };
+      // Show preview
+      renderPixelPreview(data.html);
       // Show Insert/Refine buttons
-      status.textContent = 'Section generated! Choose:';
+      status.textContent = 'Section generated! Preview below — choose:';
       var btns = document.getElementById('ai-result-btns');
       btns.style.display = 'flex';
       btn.style.display = 'none';
@@ -2168,46 +2251,6 @@ async function aiGenerate() {
       status.textContent = 'Network error: ' + err.message;
     });
     return;
-  }
-
-  function aiInsertResult() {
-    var result = window._pixelPerfectResult;
-    if (!result) return;
-    try {
-      editor.addComponents(result.html);
-      setStatus('Section added! ✓', true);
-    } catch(e) { alert('Failed: ' + e.message); }
-    document.getElementById('ai-modal').classList.remove('open');
-    resetAIState();
-  }
-
-  async function aiRefineResult() {
-    var result = window._pixelPerfectResult;
-    if (!result) return;
-    var status = document.getElementById('ai-status');
-    var btn = document.getElementById('ai-refine-btn');
-    btn.disabled = true;
-    btn.textContent = '⏳ Refining...';
-    status.textContent = 'Running closed-loop refinement...';
-    try {
-      var resp = await fetch('/api/ai/pixel-perfect/refine', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html: result.html, mockup_url: result.mockup_url })
-      });
-      var data = await resp.json();
-      btn.disabled = false;
-      btn.textContent = '🔄 Refine (3 passes)';
-      if (data.error) { status.textContent = 'Refine error: ' + data.error; return; }
-      result.html = data.html;
-      status.textContent = 'Refined! Score: ' + (data.final_score || '?') + '/100 after ' + (data.refinement || []).length + ' passes';
-      // Update stored result
-      window._pixelPerfectResult = result;
-    } catch(err) {
-      btn.disabled = false;
-      btn.textContent = '🔄 Refine (3 passes)';
-      status.textContent = 'Refine error: ' + err.message;
-    }
   }
 
   // Quick mode: existing logic
@@ -2809,8 +2852,13 @@ editor.on('load', function() {
     </div>
 
     <div id="ai-status"></div>
+    <!-- Pixel-Perfect Preview -->
+    <div id="ai-preview-container" style="display:none;margin-bottom:10px;border:1px solid #333;border-radius:8px;overflow:hidden;background:#111;">
+      <div style="font-size:11px;color:#666;padding:4px 8px;background:#1a1a1a;border-bottom:1px solid #333;">🔍 Generated Preview</div>
+      <iframe id="ai-preview-frame" style="width:100%;height:200px;border:none;background:#111;" sandbox="allow-same-origin"></iframe>
+    </div>
     <div id="ai-result-btns" style="display:none;gap:8px;margin-bottom:8px;">
-      <button class="sf-btn success" onclick="aiInsertResult()" style="flex:1;">✅ Insert Section</button>
+      <button class="sf-btn success" id="ai-insert-btn" onclick="aiInsertResult()" style="flex:1;">✅ Insert Section</button>
       <button class="sf-btn" onclick="aiRefineResult()" id="ai-refine-btn" style="flex:1;">🔄 Refine (3 passes)</button>
     </div>
     <div class="btn-row">
