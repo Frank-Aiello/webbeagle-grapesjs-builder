@@ -1348,24 +1348,16 @@ editor.on('load', function() {
   }
 });
 
-// ── Background Position: replace dropdown with text input for pixel control ──
-var _bgPosPatched = false;
-editor.on('component:selected', function() {
-  if (_bgPosPatched) return;
-  setTimeout(function() {
-    var dec = editor.StyleManager.getSector('decorations');
-    if (!dec) return;
-    var bgStack = dec.getProperty('background');
-    if (!bgStack) return;
-    var posProp = bgStack.get('properties').find(function(p) { return p.get('property') === 'background-position'; });
-    if (posProp) {
-      posProp.set('type', 'text');
-      posProp.set('defaults', '0px 0px');
-      _bgPosPatched = true;
-      // Force the Style Manager to re-render so the text input appears
-      if (editor.StyleManager.render) editor.StyleManager.render();
-    }
-  }, 400);
+// ── Background Position: standalone text input in Decorations ──
+editor.on('load', function() {
+  var dec = editor.StyleManager.getSector('decorations');
+  if (!dec || dec.getProperty('bg-position')) return;
+  dec.addProperty('bg-position', {
+    name: 'BG Position',
+    type: 'text',
+    default: 'center center',
+    property: 'background-position'
+  });
 });
 
 // Initialize the animation engine
